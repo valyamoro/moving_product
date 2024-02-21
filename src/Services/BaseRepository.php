@@ -10,15 +10,12 @@ use App\Database\PDODriver;
 abstract class BaseRepository
 {
     protected PDODriver $connection;
-    public function __construct(
-    ) {
-        $this->connection = $this->connectionDB();
+    public function __construct(array $configuration) {
+        $this->connection = $this->connectionDB($configuration);
     }
 
-    private function connectionDB(): PDODriver
+    private function connectionDB($configuration): PDODriver
     {
-        $configuration = require __DIR__ . '/../../config/db.php';
-
         $dataBaseConfiguration = new DatabaseConfiguration(...$configuration);
         $dataBasePDOConnection = new DatabasePDOConnection($dataBaseConfiguration);
 

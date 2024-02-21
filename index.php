@@ -5,6 +5,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+$configuration = require __DIR__ . '/config/db.php';
+
 if (!empty($_POST)) {
     $data = [
         'product_id' => (int)$_GET['product_id'],
@@ -23,13 +25,13 @@ if (!empty($_POST)) {
     if (!$formProductWareHouse->validator->validate($formProductWareHouse)) {
         $_SESSION['errors'] = $formProductWareHouse->validator->errors;
     } else {
-        $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository);
+        $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration));
         $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
         $result = $serviceMovingProduct->movingProduct($data);
 
         $data = [...$result, ...$data];
         if (!empty($data)) {
-            $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository());
+            $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($configuration));
             $serviceLogHistoryProductMoving->addHistoryProductData($data);
         }
     }
@@ -38,7 +40,7 @@ if (!empty($_POST)) {
     die;
 }
 
-$serviceHome = new App\Services\Home\HomeService(new \App\Services\Home\Repositories\HomeRepository());
+$serviceHome = new App\Services\Home\HomeService(new \App\Services\Home\Repositories\HomeRepository($configuration));
 $products = $serviceHome->getAllProducts();
 $historyMovingProducts = $serviceHome->getHistoryMovingProducts();
 
