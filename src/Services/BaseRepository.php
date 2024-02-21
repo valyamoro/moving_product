@@ -29,7 +29,7 @@ abstract class BaseRepository
         $this->connection->prepare($query)->execute([$productId, $wareHouseId]);
 
         $result = $this->connection->fetch();
-        return empty($result) ? 0 : $result['quantity'];
+        return [] === $result ? 0 : $result['quantity'];
     }
 
 }

@@ -9,8 +9,9 @@ class LogHistoryProductMovingService extends BaseService
 {
     public function formatToInfoAboutMovingProduct(array $data): string
     {
-        $string = "{$data['from_warehouse_title']} {$data['product_title']} был {$data['from_warehouse_past_quantity']} стало {$data['from_warehouse_now_quantity']}\n";
-        $string .= "{$data['to_warehouse_title']} {$data['product_title']} было {$data['to_warehouse_past_quantity']} перемещено {$data['moving_quantity']} стало {$data['to_warehouse_now_quantity']}";
+        $now = \date('d-m-Y');
+        $string = "{$data['from_warehouse_title']} {$data['product_title']} был {$data['from_warehouse_past_quantity']} стало {$data['from_warehouse_now_quantity']} {$now}\n";
+        $string .= "{$data['to_warehouse_title']} {$data['product_title']} было {$data['to_warehouse_past_quantity']} перемещено {$data['moving_quantity']} стало {$data['to_warehouse_now_quantity']} {$now}";
 
         return $string;
     }

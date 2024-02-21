@@ -42,7 +42,7 @@ class LogHistoryProductMovingRepository extends BaseRepository
 
         $result = $this->connection->fetch();
 
-        return $result === [] ? 0 : $result['quantity'];
+        return $result === [] ? 0 : (int)$result['quantity'];
     }
 
 }

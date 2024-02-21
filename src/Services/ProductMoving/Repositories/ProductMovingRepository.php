@@ -68,7 +68,7 @@ class ProductMovingRepository extends BaseRepository
 
         $result = $this->connection->fetch();
 
-        return ($result !== []) ? $result : null;
+        return $result === [] ? null : $result;
     }
 
 }
