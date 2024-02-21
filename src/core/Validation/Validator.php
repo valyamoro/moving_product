@@ -11,6 +11,7 @@ class Validator
     public const RULE_QUANTITY_MIN = 'min_quantity';
     public const RULE_QUANTITY_MAX = 'max_quantity';
     public const RULE_WAREHOUSES_MATCH = 'warehouses_match';
+    public const RULE_NUMBERS = 'numbers';
 
 
     private array $rules;
@@ -33,32 +34,34 @@ class Validator
                 }
 
                 if ($ruleName === self::RULE_REQUIRED && empty($value)) {
-                    $this->addError($attribute, self::RULE_REQUIRED);
+                    $this->addError(self::RULE_REQUIRED);
                 }
 
-                if ($ruleName === self::RULE_QUANTITY_MIN && $value < $rule['min_quantity']) {
-                    $this->addError($attribute, self::RULE_QUANTITY_MIN, $rule);
+                if ($ruleName === self::RULE_QUANTITY_MIN && \is_numeric($value) && $value < $rule['min_quantity']) {
+                    $this->addError(self::RULE_QUANTITY_MIN, $rule);
                 }
 
-
-                if ($ruleName === self::RULE_QUANTITY_MAX && $value > $rule['max_quantity']) {
-                    $this->addError($attribute, self::RULE_QUANTITY_MAX, $rule);
+                if ($ruleName === self::RULE_QUANTITY_MAX && \is_numeric($value) && $value > $rule['max_quantity']) {
+                    $this->addError(self::RULE_QUANTITY_MAX, $rule);
                 }
 
-                if ($ruleName === self::RULE_WAREHOUSES_MATCH && $model->getWareHousesId()['from'] === $model->getWareHousesId()['to']) {
-                    $this->addError($attribute, self::RULE_WAREHOUSES_MATCH);
+                if ($ruleName === self::RULE_WAREHOUSES_MATCH && $rule['is_match']) {
+                    $this->addError(self::RULE_WAREHOUSES_MATCH);
                 }
+
+                if ($ruleName === self::RULE_NUMBERS && !empty($value) && !\preg_match('/^\d+$/', (string)$value)) {
+                    $this->addError(self::RULE_NUMBERS);
+                }
+
             }
         }
 
         return empty($this->errors);
     }
 
-    private function addError(string $attribute, string $rule, array $params = [], string $message = ''): void
+    private function addError(string $rule, array $params = []): void
     {
-        if (empty($message)) {
-            $message = $this->errorMessages()[$rule] ?? '';
-        }
+        $message = $this->errorMessages()[$rule] ?? '';
 
         if (!empty($params)) {
             foreach ($params as $key => $value) {
@@ -73,9 +76,10 @@ class Validator
     {
         return [
             self::RULE_REQUIRED => 'Вы должны указать количество товаров',
-            self::RULE_QUANTITY_MIN => 'Минимальное количество товаров - {min_quantity}',
-            self::RULE_QUANTITY_MAX => 'Максимальное количество товаров которое вы можете переместить с этого склада - {max_quantity}',
+            self::RULE_QUANTITY_MIN => 'Минимальное количество товаров {min_quantity}',
+            self::RULE_QUANTITY_MAX => 'Максимальное количество товаров которое вы можете переместить с этого склада {max_quantity}',
             self::RULE_WAREHOUSES_MATCH => 'Вы не можете переместить этот товар на этот же склад',
+            self::RULE_NUMBERS => 'В этом поле должны быть только цифры!',
         ];
     }
 

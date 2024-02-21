@@ -11,7 +11,7 @@ class FormProductWareHouseModel extends Model
     public function __construct(
         private readonly int $productId,
         private readonly array $wareHousesId,
-        private readonly int $quantity,
+        private readonly int|string $quantity,
     ) {
         parent::__construct();
     }
@@ -26,7 +26,7 @@ class FormProductWareHouseModel extends Model
         return $this->productId;
     }
 
-    public function getQuantity(): int
+    public function getQuantity(): int|string
     {
         return $this->quantity;
     }
@@ -43,12 +43,13 @@ class FormProductWareHouseModel extends Model
         return [
             'quantity' => [
                 $this->validator::RULE_REQUIRED,
+                $this->validator::RULE_NUMBERS,
                 [$this->validator::RULE_QUANTITY_MIN, 'min_quantity' => '1'],
                 [$this->validator::RULE_QUANTITY_MAX, 'max_quantity' => $this->getQuantityWareHousesProduct($configuration)],
             ],
 
             'wareHousesId' => [
-                $this->validator::RULE_WAREHOUSES_MATCH,
+                [$this->validator::RULE_WAREHOUSES_MATCH, 'is_match' => $this->getWareHousesId()['from'] === $this->getWareHousesId()['to']],
             ],
 
         ];

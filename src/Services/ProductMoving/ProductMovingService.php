@@ -28,7 +28,7 @@ class ProductMovingService extends BaseService
                     $data['from_warehouse_id']);
             }
 
-            $this->repository->addProduct($data['product_id'], $data['to_warehouse_id'], $data['moving_quantity']);
+            $this->repository->addProduct($data['product_id'], $data['to_warehouse_id'], (int)$data['moving_quantity']);
         }
 
         return [

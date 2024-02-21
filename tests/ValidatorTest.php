@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use App\L_18_02_24\core\Validation\Validator;
-use App\L_18_02_24\Models\ProductModel;
-
 use PHPUnit\Framework\TestCase;
 
 class ValidatorTest extends TestCase

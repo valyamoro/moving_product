@@ -12,7 +12,7 @@ if (!empty($_POST)) {
         'product_id' => (int)$_GET['product_id'],
         'from_warehouse_id' => (int)$_GET['warehouse_id'],
         'to_warehouse_id' => (int)$_POST['warehouse'],
-        'moving_quantity' => (int)$_POST['quantity'],
+        'moving_quantity' => $_POST['quantity'],
     ];
 
     $formProductWareHouse = new \App\Models\FormProductWareHouseModel(
