@@ -31,6 +31,7 @@ if (!empty($_POST)) {
         $result = $serviceLogHistoryProductMoving->getPastQuantityWareHouses($data['product_id'], [$data['from_warehouse_id'], $data['to_warehouse_id']]);
 
         $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
+
         $serviceMovingProduct->movingProduct($data);
 
         $data = [...$result, ...$data];

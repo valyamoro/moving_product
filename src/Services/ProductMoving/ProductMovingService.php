@@ -40,7 +40,7 @@ class ProductMovingService extends BaseService
         $data['quantity_difference_current_warehouse'] = $data['quantity_product_from_warehouse'] - $data['moving_quantity'];
         $data['quantity_sum_current_warehouse'] = $data['quantity_product_to_warehouse'] + $data['moving_quantity'];
 
-        if (\is_null($data['to_warehouse_product_data'])) {
+        if ($data['quantity_product_to_warehouse'] === 0) {
             $data['is_add'] = true;
             $data['quantity_current_warehouse'] = $data['quantity_difference_current_warehouse'];
         } else {
