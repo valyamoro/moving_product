@@ -35,6 +35,15 @@ class ProductMovingServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(5, $result['quantity_sum_current_warehouse']);
     }
 
+    public function testCanMovingProduct(): void
+    {
+        $data = $this->service->getNeedDataAboutProduct($this->data);
+        $result = $this->service->movingProduct($data);
+
+        $this->assertSame(5, $result['from_warehouse_past_quantity']);
+        $this->assertSame(0, $result['to_warehouse_past_quantity']);
+    }
+
     public function tearDown(): void
     {
         $this->repository->deleteProduct($this->data['product_id'], $this->data['to_warehouse_id']);
