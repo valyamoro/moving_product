@@ -32,4 +32,12 @@ class LogHistoryProductMovingService extends BaseService
         return $data;
     }
 
+    public function getPastQuantityWareHouses(int $productId, array $wareHousesId): array
+    {
+        return [
+            'from_warehouse_past_quantity' => $this->repository->getQuantityWareHouseProduct($productId, $wareHousesId[0]),
+            'to_warehouse_past_quantity' => $this->repository->getQuantityWareHouseProduct($productId, $wareHousesId[1]),
+        ];
+    }
+
 }

@@ -34,4 +34,13 @@ class LogHistoryProductMovingRepository extends BaseRepository
         return (bool)$this->connection->rowCount();
     }
 
+    public function getQuantityWareHouseProduct(int $productId, int $wareHouseId): int
+    {
+        $query = 'select quantity from product_warehouse where product_id=? and warehouse_id=?';
+
+        $this->connection->prepare($query)->execute([$productId, $wareHouseId]);
+
+        return (int)$this->connection->fetch()['quantity'];
+    }
+
 }

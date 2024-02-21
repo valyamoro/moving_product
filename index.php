@@ -23,15 +23,18 @@ if (!empty($_POST)) {
 
     $formProductWareHouse->validator->setRules($formProductWareHouse->rules($configuration));
     if (!$formProductWareHouse->validator->validate($formProductWareHouse)) {
-        $_SESSION['errors'] = $formProductWareHouse->validator->errors;
+        $_SESSION['errors'] = $formProductWareHouse->validator->getErrors();
     } else {
         $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration));
+        $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($configuration));
+
+        $result = $serviceLogHistoryProductMoving->getPastQuantityWareHouses($data['product_id'], [$data['from_warehouse_id'], $data['to_warehouse_id']]);
+
         $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
-        $result = $serviceMovingProduct->movingProduct($data);
+        $serviceMovingProduct->movingProduct($data);
 
         $data = [...$result, ...$data];
         if (!empty($data)) {
-            $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($configuration));
             $data = $serviceLogHistoryProductMoving->obtainingRemainingDataAboutMovementOfTheProduct($data);
             $serviceLogHistoryProductMoving->addHistoryProductData($data);
         }

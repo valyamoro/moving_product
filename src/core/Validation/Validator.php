@@ -13,9 +13,8 @@ class Validator
     public const RULE_WAREHOUSES_MATCH = 'warehouses_match';
     public const RULE_NUMBERS = 'numbers';
 
-
     private array $rules;
-    public array $errors = [];
+    private array $errors = [];
 
     public function setRules($value): void
     {
@@ -81,6 +80,11 @@ class Validator
             self::RULE_WAREHOUSES_MATCH => 'Вы не можете переместить этот товар на этот же склад',
             self::RULE_NUMBERS => 'В этом поле должны быть только цифры!',
         ];
+    }
+
+    public function getErrors(): array
+    {
+        return $this->errors;
     }
 
 }

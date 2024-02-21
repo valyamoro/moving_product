@@ -16,7 +16,7 @@ class ValidatorTest extends TestCase
         $formProductWareHouse->validator->setRules($formProductWareHouse->rules(require __DIR__ . '/../config/test_db.php'));
         $formProductWareHouse->validator->validate($formProductWareHouse);
 
-        $result = $formProductWareHouse->validator->errors;
+        $result = $formProductWareHouse->validator->getErrors();
         $this->assertEmpty($result);
     }
 

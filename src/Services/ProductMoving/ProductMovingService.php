@@ -7,19 +7,17 @@ use App\Services\BaseService;
 
 class ProductMovingService extends BaseService
 {
-    public function movingProduct(array $data): array
+    public function movingProduct(array $data): void
     {
         if (false === $data['is_add']) {
             if ($data['quantity_product_from_warehouse'] <= $data['moving_quantity']) {
                 $this->repository->deleteProduct($data['product_id'], $data['from_warehouse_id']);
-                $this->repository->updateProduct($data['quantity_sum_current_warehouse'], $data['product_id'],
-                    $data['to_warehouse_id']);
             } else {
                 $this->repository->updateProduct($data['quantity_difference_current_warehouse'], $data['product_id'],
                     $data['from_warehouse_id']);
-                $this->repository->updateProduct($data['quantity_sum_current_warehouse'], $data['product_id'],
-                    $data['to_warehouse_id']);
             }
+            $this->repository->updateProduct($data['quantity_sum_current_warehouse'], $data['product_id'],
+                $data['to_warehouse_id']);
         } else {
             if ($data['quantity_current_warehouse'] === 0) {
                 $this->repository->deleteProduct($data['product_id'], $data['from_warehouse_id']);
@@ -30,22 +28,12 @@ class ProductMovingService extends BaseService
 
             $this->repository->addProduct($data['product_id'], $data['to_warehouse_id'], (int)$data['moving_quantity']);
         }
-
-        return [
-            'from_warehouse_past_quantity' => $data['from_warehouse_product_data']['quantity'],
-            'to_warehouse_past_quantity' => $data['to_warehouse_product_data']['quantity'] ?? 0,
-        ];
     }
 
     public function getNeedDataAboutProduct(array $data): array
     {
-        $data['from_warehouse_product_data'] = $this->repository->getProductData($data['product_id'],
-            $data['from_warehouse_id']);
-        $data['to_warehouse_product_data'] = $this->repository->getProductData($data['product_id'],
-            $data['to_warehouse_id']);
-
         $data['quantity_product_from_warehouse'] = $this->repository->getQuantityWareHousesProduct($data['product_id'],
-        $data['from_warehouse_id']);
+            $data['from_warehouse_id']);
         $data['quantity_product_to_warehouse'] = $this->repository->getQuantityWareHousesProduct($data['product_id'],
             $data['to_warehouse_id']);
 
