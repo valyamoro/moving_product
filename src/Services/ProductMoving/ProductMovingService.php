@@ -9,10 +9,6 @@ class ProductMovingService extends BaseService
 {
     public function movingProduct(array $data): array
     {
-
-        dump($data);
-        $data = \array_merge($this->getNeedDataAboutProduct($data), $data);
-        dump($data);
         if (false === $data['is_add']) {
             if ($data['quantity_product_from_warehouse'] <= $data['moving_quantity']) {
                 $this->repository->deleteProduct($data['product_id'], $data['from_warehouse_id']);
@@ -41,7 +37,7 @@ class ProductMovingService extends BaseService
         ];
     }
 
-    private function getNeedDataAboutProduct(array $data): array
+    public function getNeedDataAboutProduct(array $data): array
     {
         $data['from_warehouse_product_data'] = $this->repository->getProductData($data['product_id'],
             $data['from_warehouse_id']);

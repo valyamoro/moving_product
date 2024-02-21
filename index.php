@@ -13,14 +13,27 @@ if (!empty($_POST)) {
         'moving_quantity' => (int)$_POST['quantity'],
     ];
 
-    $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository);
-    $result = $serviceMovingProduct->movingProduct($data);
+    $formProductWareHouse = new \App\Models\FormProductWareHouseModel(
+        $data['product_id'],
+        ['from' => $data['from_warehouse_id'], 'to' => $data['to_warehouse_id']],
+        $data['moving_quantity'],
+    );
 
-    $data = [...$result, ...$data];
-    if (!empty($data)) {
-        $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository());
-        $serviceLogHistoryProductMoving->addHistoryProductData($data);
+    $formProductWareHouse->validator->setRules($formProductWareHouse->rules());
+    if (!$formProductWareHouse->validator->validate($formProductWareHouse)) {
+        $_SESSION['errors'] = $formProductWareHouse->validator->errors;
+    } else {
+        $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository);
+        $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
+        $result = $serviceMovingProduct->movingProduct($data);
+
+        $data = [...$result, ...$data];
+        if (!empty($data)) {
+            $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository());
+            $serviceLogHistoryProductMoving->addHistoryProductData($data);
+        }
     }
+
     \header('Location: /');
     die;
 }
@@ -32,7 +45,6 @@ $historyMovingProducts = $serviceHome->getHistoryMovingProducts();
 $warehouses = $serviceHome->getWarehouses();
 
 ?>
-
 <?php if (!empty($_GET['product_id']) && !empty($_GET['warehouse_id'])): ?>
     <form action="" method="POST">
         <div class="modal-body">
@@ -53,8 +65,10 @@ $warehouses = $serviceHome->getWarehouses();
     </form>
 <?php endif; ?>
 <?php if (!empty($_SESSION['errors'])): ?>
-<?php echo \nl2br($_SESSION['errors']); ?>
-<?php unset($_SESSION['errors']); ?>
+    <?php foreach ($_SESSION['errors'] as $error): ?>
+        <?php echo \nl2br($error) . '<br>'; ?>
+    <?php endforeach; ?>
+    <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
 
 <!doctype html>

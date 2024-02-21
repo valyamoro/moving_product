@@ -7,7 +7,7 @@ use App\Database\DatabaseConfiguration;
 use App\Database\DatabasePDOConnection;
 use App\Database\PDODriver;
 
-class BaseRepository
+abstract class BaseRepository
 {
     protected PDODriver $connection;
     public function __construct(
