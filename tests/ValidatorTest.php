@@ -10,19 +10,17 @@ class ValidatorTest extends TestCase
 {
     public function testValidateProduct(): void
     {
-        $data = [
-            'id' => 1,
-            'idWareHouse' => 1,
-            'title' => 'product 1',
-            'price' => 500,
-            'quantity' => 3,
-        ];
+        $formProductWareHouse = new \App\Models\FormProductWareHouseModel(
+            1,
+            ['from' => 5, 'to' => 6],
+            5,
+        );
 
-        $model = new ProductModel(...$data);
-        $validator = new Validator();
-        $validator->setRules($model->rules());
+        $formProductWareHouse->validator->setRules($formProductWareHouse->rules(require __DIR__ . '/../config/test_db.php'));
+        $formProductWareHouse->validator->validate($formProductWareHouse);
 
-        $this->assertTrue($validator->validate($model));
+        $result = $formProductWareHouse->validator->errors;
+        $this->assertEmpty($result);
     }
 
 }

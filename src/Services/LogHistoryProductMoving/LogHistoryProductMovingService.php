@@ -32,5 +32,4 @@ class LogHistoryProductMovingService extends BaseService
         return $data;
     }
 
-
 }
