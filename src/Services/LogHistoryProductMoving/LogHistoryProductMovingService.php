@@ -9,8 +9,6 @@ class LogHistoryProductMovingService extends BaseService
 {
     public function formatToInfoAboutMovingProduct(array $data): string
     {
-        $data = $this->obtainingRemainingDataAboutMovementOfTheProduct($data);
-
         $string = "{$data['from_warehouse_title']} {$data['product_title']} был {$data['from_warehouse_past_quantity']} стало {$data['from_warehouse_now_quantity']}\n";
         $string .= "{$data['to_warehouse_title']} {$data['product_title']} было {$data['to_warehouse_past_quantity']} перемещено {$data['moving_quantity']} стало {$data['to_warehouse_now_quantity']}";
 
@@ -23,7 +21,7 @@ class LogHistoryProductMovingService extends BaseService
         $this->repository->addHistoryProductMoving($data['product_id'], $result);
     }
 
-    private function obtainingRemainingDataAboutMovementOfTheProduct(array $data): array
+    public function obtainingRemainingDataAboutMovementOfTheProduct(array $data): array
     {
         $data['from_warehouse_now_quantity'] = $this->repository->getQuantityWareHousesProduct($data['product_id'], $data['from_warehouse_id']);
         $data['to_warehouse_now_quantity'] = $this->repository->getQuantityWareHousesProduct($data['product_id'], $data['to_warehouse_id']);

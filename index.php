@@ -32,6 +32,7 @@ if (!empty($_POST)) {
         $data = [...$result, ...$data];
         if (!empty($data)) {
             $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($configuration));
+            $data = $serviceLogHistoryProductMoving->obtainingRemainingDataAboutMovementOfTheProduct($data);
             $serviceLogHistoryProductMoving->addHistoryProductData($data);
         }
     }
