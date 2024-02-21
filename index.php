@@ -26,7 +26,13 @@ if (!empty($_POST)) {
         $_SESSION['errors'] = $formProductWareHouse->validator->errors;
     } else {
         $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration));
+
+        dump($serviceMovingProduct->getNeedDataAboutProduct($data));
+
+        die;
         $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
+
+
         $result = $serviceMovingProduct->movingProduct($data);
 
         $data = [...$result, ...$data];

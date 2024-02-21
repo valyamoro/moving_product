@@ -33,7 +33,7 @@ class FormProductWareHouseModel extends Model
 
     public function getQuantityWareHousesProduct(): int
     {
-        $repository = new ProductMovingRepository();
+        $repository = new ProductMovingRepository(require __DIR__ . '/../../config/db.php');
 
         return $repository->getQuantityWareHousesProduct($this->getProductId(), $this->getWareHousesId()['from']);
     }
