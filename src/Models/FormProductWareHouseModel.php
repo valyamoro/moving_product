@@ -31,20 +31,20 @@ class FormProductWareHouseModel extends Model
         return $this->quantity;
     }
 
-    public function getQuantityWareHousesProduct(): int
+    public function getQuantityWareHousesProduct(array $configuration): int
     {
-        $repository = new ProductMovingRepository(require __DIR__ . '/../../config/db.php');
+        $repository = new ProductMovingRepository($configuration);
 
         return $repository->getQuantityWareHousesProduct($this->getProductId(), $this->getWareHousesId()['from']);
     }
 
-    public function rules(): array
+    public function rules(array $configuration): array
     {
         return [
             'quantity' => [
                 $this->validator::RULE_REQUIRED,
                 [$this->validator::RULE_QUANTITY_MIN, 'min_quantity' => '1'],
-                [$this->validator::RULE_QUANTITY_MAX, 'max_quantity' => $this->getQuantityWareHousesProduct()],
+                [$this->validator::RULE_QUANTITY_MAX, 'max_quantity' => $this->getQuantityWareHousesProduct($configuration)],
             ],
 
             'wareHousesId' => [

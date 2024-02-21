@@ -21,18 +21,12 @@ if (!empty($_POST)) {
         $data['moving_quantity'],
     );
 
-    $formProductWareHouse->validator->setRules($formProductWareHouse->rules());
+    $formProductWareHouse->validator->setRules($formProductWareHouse->rules($configuration));
     if (!$formProductWareHouse->validator->validate($formProductWareHouse)) {
         $_SESSION['errors'] = $formProductWareHouse->validator->errors;
     } else {
         $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration));
-
-        dump($serviceMovingProduct->getNeedDataAboutProduct($data));
-
-        die;
         $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
-
-
         $result = $serviceMovingProduct->movingProduct($data);
 
         $data = [...$result, ...$data];
