@@ -5,7 +5,7 @@ namespace App\Services\ProductMoving\Repositories;
 
 use App\Services\BaseRepository;
 
-class ProductMovingRepository extends BaseRepository
+class ProductMovementRepository extends BaseRepository
 {
     public function updateProduct($quantity, $productId, $storageId): bool
     {

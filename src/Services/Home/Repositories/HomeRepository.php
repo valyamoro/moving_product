@@ -7,7 +7,7 @@ use App\Services\BaseRepository;
 
 class HomeRepository extends BaseRepository
 {
-    public function getStorages(): array
+    public function getAllStorages(): array
     {
         $query = 'select * from storages order by id asc';
 
@@ -29,7 +29,7 @@ class HomeRepository extends BaseRepository
         return $this->connection->fetchAll();
     }
 
-    public function getAllHistoryMovingProducts(): array
+    public function getAllHistoryMovementProducts(): array
     {
         $query = 'select * from history_product_moving order by id asc';
 

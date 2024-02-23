@@ -5,7 +5,7 @@ namespace App\Models;
 
 use App\core\Model;
 use App\Database\PDODriver;
-use App\Services\ProductMoving\Repositories\ProductMovingRepository;
+use App\Services\ProductMoving\Repositories\ProductMovementRepository;
 
 class FormProductStorage extends Model
 {
@@ -34,9 +34,9 @@ class FormProductStorage extends Model
 
     public function getQuantityStoragesProduct(PDODriver $connection): int
     {
-        $repository = new ProductMovingRepository($connection);
+        $repository = new ProductMovementRepository($connection);
 
-        return $repository->getQuantityWareHousesProduct($this->getProductId(), $this->getStoragesId()['from']);
+        return $repository->getQuantityProductInStorage($this->getProductId(), $this->getStoragesId()['from']);
     }
 
     public function rules(PDODriver $connection): array

@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\HistoryProductMoving\Repositories;
+namespace App\Services\HistoryProductMovement\Repositories;
 
 use App\Services\BaseRepository;
 
-class HistoryProductMovingRepository extends BaseRepository
+class HistoryProductMovementRepository extends BaseRepository
 {
     public function getProductTitleById(int $id): string
     {
@@ -25,24 +25,13 @@ class HistoryProductMovingRepository extends BaseRepository
         return $this->connection->fetch()['name'];
     }
 
-    public function addHistoryProductMoving(int $id, string $data): bool
+    public function save(int $id, string $data): bool
     {
         $query = 'insert into history_product_moving(product_id, description) values (?, ?)';
 
         $this->connection->prepare($query)->execute([$id, $data]);
 
         return (bool)$this->connection->rowCount();
-    }
-
-    public function getQuantityStorageProduct(int $productId, int $storageId): int
-    {
-        $query = 'select quantity from product_storage where product_id=? and storage_id=?';
-
-        $this->connection->prepare($query)->execute([$productId, $storageId]);
-
-        $result = $this->connection->fetch();
-
-        return !empty($result) ? (int)$result['quantity'] : 0;
     }
 
 }

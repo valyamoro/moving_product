@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 class LogHistoryProductMovingServiceTest extends \PHPUnit\Framework\TestCase
 {
-    private readonly \App\Services\HistoryProductMoving\HistoryProductMovingService $service;
+    private readonly \App\Services\HistoryProductMovement\HistoryProductMovementService $service;
     private readonly array $dataForFormatToInfoAboutMovingProduct;
     private readonly array $dataForObtainingRemainingDataAboutMovementOfTheProduct;
 
@@ -26,8 +26,8 @@ class LogHistoryProductMovingServiceTest extends \PHPUnit\Framework\TestCase
             'to_warehouse_id' => 4,
         ];
 
-        $repository = new \App\Services\HistoryProductMoving\Repositories\HistoryProductMovingRepository(require __DIR__ . '/../config/test_db.php');
-        $this->service = new \App\Services\HistoryProductMoving\HistoryProductMovingService($repository);
+        $repository = new \App\Services\HistoryProductMovement\Repositories\HistoryProductMovementRepository(require __DIR__ . '/../config/test_db.php');
+        $this->service = new \App\Services\HistoryProductMovement\HistoryProductMovementService($repository);
     }
 
     public function testFormatToInfoAboutMovingProduct(): void

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 class ProductMovingRepositoryTest extends \PHPUnit\Framework\TestCase
 {
-    private readonly \App\Services\ProductMoving\Repositories\ProductMovingRepository $repository;
+    private readonly \App\Services\ProductMoving\Repositories\ProductMovementRepository $repository;
     private readonly array $data;
 
     protected function setUp(): void
@@ -17,7 +17,7 @@ class ProductMovingRepositoryTest extends \PHPUnit\Framework\TestCase
 
         $this->data = $data;
         $configuration = require __DIR__ . '/../config/test_db.php';
-        $this->repository = new \App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration);
+        $this->repository = new \App\Services\ProductMoving\Repositories\ProductMovementRepository($configuration);
     }
 
     public function testCanGetProductData(): void

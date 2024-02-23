@@ -7,11 +7,11 @@ use App\Services\BaseService;
 
 class HomeService extends BaseService
 {
-    public function getHistoryMovingProducts(): array
+    public function getAllHistoryMovementProducts(): array
     {
         $result = [];
 
-        $historyMoves = $this->repository->getAllHistoryMovingProducts();
+        $historyMoves = $this->repository->getAllHistoryMovementProducts();
 
         foreach ($this->repository->getAllProducts() as $value) {
             $string = '';
@@ -34,9 +34,9 @@ class HomeService extends BaseService
         return $this->repository->getAllProducts();
     }
 
-    public function getStorages(): array
+    public function getAllStorages(): array
     {
-        return $this->repository->getStorages();
+        return $this->repository->getAllStorages();
     }
 
     private function deleteDuplicates(array $data, string $key): array

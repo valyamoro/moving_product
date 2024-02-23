@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\HistoryProductMoving;
+namespace App\Services\HistoryProductMovement;
 
 use App\Services\BaseService;
 
-class HistoryProductMovingService extends BaseService
+class HistoryProductMovementService extends BaseService
 {
     public function getStringProductInfo(array $data): string
     {
@@ -21,13 +21,13 @@ class HistoryProductMovingService extends BaseService
     public function save(array $data): void
     {
         $result = $this->getStringProductInfo($data);
-        $this->repository->addHistoryProductMoving($data['product_id'], $result);
+        $this->repository->save($data['product_id'], $result);
     }
 
-    public function obtainingRemainingDataAboutMovementOfTheProduct(array $data): array
+    public function getInfoAboutProductMovement(array $data): array
     {
-        $data['from_storage_now_quantity'] = $this->repository->getQuantityWareHousesProduct($data['product_id'], $data['from_storage_id']);
-        $data['to_storage_now_quantity'] = $this->repository->getQuantityWareHousesProduct($data['product_id'], $data['to_storage_id']);
+        $data['from_storage_now_quantity'] = $this->repository->getQuantityProductInStorage($data['product_id'], $data['from_storage_id']);
+        $data['to_storage_now_quantity'] = $this->repository->getQuantityProductInStorage($data['product_id'], $data['to_storage_id']);
         $data['from_storage_title'] = $this->repository->getStorageTitleById($data['from_storage_id']);
         $data['to_storage_title'] = $this->repository->getStorageTitleById($data['to_storage_id']);
         $data['product_title'] = $this->repository->getProductTitleById((int)$data['product_id']);
@@ -35,11 +35,11 @@ class HistoryProductMovingService extends BaseService
         return $data;
     }
 
-    public function getPastQuantityWareHouses(int $productId, array $storagesId): array
+    public function getPastQuantityProductInStorage(int $productId, array $storagesId): array
     {
         return [
-            'from_storage_past_quantity' => $this->repository->getQuantityStorageProduct($productId, $storagesId[0]),
-            'to_storage_past_quantity' => $this->repository->getQuantityStorageProduct($productId, $storagesId[1]),
+            'from_storage_past_quantity' => $this->repository->getQuantityProductInStorage($productId, $storagesId['from']),
+            'to_storage_past_quantity' => $this->repository->getQuantityProductInStorage($productId, $storagesId['to']),
         ];
     }
 

@@ -5,9 +5,9 @@ namespace App\Services\ProductMoving;
 
 use App\Services\BaseService;
 
-class ProductMovingService extends BaseService
+class ProductMovementService extends BaseService
 {
-    public function movingProduct(array $data): void
+    public function moveProduct(array $data): void
     {
         if (false === $data['is_add']) {
             if ($data['quantity_product_from_storage'] <= $data['moving_quantity']) {
@@ -34,8 +34,8 @@ class ProductMovingService extends BaseService
 
     public function getNeedDataAboutProduct(array $data): array
     {
-        $data['quantity_product_from_storage'] = $this->repository->getQuantityWareHousesProduct($data['product_id'], $data['from_storage_id']);
-        $data['quantity_product_to_storage'] = $this->repository->getQuantityWareHousesProduct($data['product_id'], $data['to_storage_id']);
+        $data['quantity_product_from_storage'] = $this->repository->getQuantityProductInStorage($data['product_id'], $data['from_storage_id']);
+        $data['quantity_product_to_storage'] = $this->repository->getQuantityProductInStorage($data['product_id'], $data['to_storage_id']);
 
         $data['quantity_difference_current_storage'] = $data['quantity_product_from_storage'] - $data['moving_quantity'];
         $data['quantity_sum_current_storage'] = $data['quantity_product_to_storage'] + $data['moving_quantity'];

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 class ProductMovingServiceTest extends \PHPUnit\Framework\TestCase
 {
-    private readonly \App\Services\ProductMoving\ProductMovingService $service;
-    private readonly \App\Services\ProductMoving\Repositories\ProductMovingRepository $repository;
+    private readonly \App\Services\ProductMoving\ProductMovementService $service;
+    private readonly \App\Services\ProductMoving\Repositories\ProductMovementRepository $repository;
     private readonly array $data;
 
     protected function setUp(): void
@@ -18,11 +18,11 @@ class ProductMovingServiceTest extends \PHPUnit\Framework\TestCase
 
         $this->data = $data;
         $configuration = require __DIR__ . '/../config/test_db.php';
-        $this->repository = new \App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration);
+        $this->repository = new \App\Services\ProductMoving\Repositories\ProductMovementRepository($configuration);
 
         $this->repository->addProduct($data['product_id'], $data['from_warehouse_id'], $data['moving_quantity']);
 
-        $this->service = new \App\Services\ProductMoving\ProductMovingService($this->repository);
+        $this->service = new \App\Services\ProductMoving\ProductMovementService($this->repository);
     }
 
     public function testCanGetNeedDataAboutProduct(): void

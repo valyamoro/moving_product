@@ -24,7 +24,10 @@ if (!empty($_POST)) {
 
     $formProductWareHouse = new \App\Models\FormProductStorage(
         $data['product_id'],
-        ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
+        [
+            'from' => $data['from_storage_id'],
+            'to' => $data['to_storage_id'],
+        ],
         $data['moving_quantity'],
     );
 
@@ -32,24 +35,31 @@ if (!empty($_POST)) {
     if (!$formProductWareHouse->validator->validate($formProductWareHouse)) {
         $_SESSION['errors'] = $formProductWareHouse->validator->getErrors();
     } else {
-        $productMovingRepository = new App\Services\ProductMoving\Repositories\ProductMovingRepository($pdoDriver);
-        $movingProductService = new App\Services\ProductMoving\ProductMovingService($productMovingRepository);
+        $productMovingRepository = new App\Services\ProductMoving\Repositories\ProductMovementRepository($pdoDriver);
+        $movingProductService = new App\Services\ProductMoving\ProductMovementService($productMovingRepository);
 
-        $historyProductMovingRepository = new \App\Services\HistoryProductMoving\Repositories\HistoryProductMovingRepository($pdoDriver);
-        $historyProductMovingService = new \App\Services\HistoryProductMoving\HistoryProductMovingService($historyProductMovingRepository);
+        $historyProductMovingRepository = new \App\Services\HistoryProductMovement\Repositories\HistoryProductMovementRepository($pdoDriver);
+        $historyProductMovingService = new \App\Services\HistoryProductMovement\HistoryProductMovementService($historyProductMovingRepository);
 
-        $result = $historyProductMovingService->getPastQuantityWareHouses($data['product_id'],
-            [$data['from_storage_id'], $data['to_storage_id']]);
+        $result = $historyProductMovingService->getPastQuantityProductInStorage(
+            $data['product_id'],
+            [
+                'from' => $data['from_storage_id'],
+                'to' => $data['to_storage_id'],
+            ],
+        );
 
         $data = $movingProductService->getNeedDataAboutProduct($data);
-        $movingProductService->movingProduct($data);
+        $movingProductService->moveProduct($data);
 
         $productInfo = [...$result, ...$data];
         if (!empty($productInfo)) {
-            $productInfoForHistory = $historyProductMovingService->obtainingRemainingDataAboutMovementOfTheProduct($productInfo);
+            $productInfoForHistory = $historyProductMovingService->getInfoAboutProductMovement($productInfo);
             $historyProductMovingService->save($productInfoForHistory);
             $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_GET['product_id']} со склада под номером {$_GET['from_storage_id']} 
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
+            \header('Location: /');
+            die;
         }
 
     }
@@ -59,9 +69,9 @@ if (!empty($_POST)) {
 $homeRepository = new \App\Services\Home\Repositories\HomeRepository($pdoDriver);
 $homeService = new App\Services\Home\HomeService($homeRepository);
 $products = $homeService->getAllProducts();
-$historyMovingProducts = $homeService->getHistoryMovingProducts();
+$historyMovingProducts = $homeService->getAllHistoryMovementProducts();
 
-$storages = $homeService->getStorages();
+$storages = $homeService->getAllStorages();
 
 ?>
 <?php if (!empty($_SESSION['errors'])): ?>
