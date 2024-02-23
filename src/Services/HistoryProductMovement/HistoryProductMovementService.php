@@ -3,44 +3,62 @@ declare(strict_types=1);
 
 namespace App\Services\HistoryProductMovement;
 
+use App\Models\Product;
+use App\Models\Storage;
 use App\Services\BaseService;
 
 class HistoryProductMovementService extends BaseService
 {
-    public function getStringProductInfo(array $data): string
+    public function getStringProductInfo(Product $product, Storage $storage): string
     {
         $date = \date('d-m-Y H:i');
-        $string = "{$data['from_storage_title']} {$data['product_title']} был {$data['from_storage_past_quantity']}
-         стало {$data['from_storage_now_quantity']} {$date}\n";
-        $string .= "| {$data['to_storage_title']} {$data['product_title']} было {$data['to_storage_past_quantity']}
-         перемещено {$data['moving_quantity']} стало {$data['to_storage_now_quantity']} {$date}";
+        $string = "{$storage->getFromTitle()} {$product->getTitle()} был {$product->getPastQuantityFromStorage()}
+        стало {$product->getNowQuantityFromStorage()} {$date}\n";
+
+        $string .= "| {$storage->getToTitle()} {$product->getTitle()} было {$product->getPastQuantityToStorage()}
+        перемещено {$product->getQuantity()} стало {$product->getNowQuantityToStorage()} {$date}";
 
         return $string;
     }
 
     public function save(array $data): void
     {
-        $result = $this->getStringProductInfo($data);
-        $this->repository->save($data['product_id'], $result);
+        $result = $this->getStringProductInfo($data['product'], $data['storage']);
+        $this->repository->save($data['product']->getId(), $result);
     }
 
-    public function getInfoAboutProductMovement(array $data): array
+    public function getInfoAboutProductMovement(Product $product, Storage $storage): array
     {
-        $data['from_storage_now_quantity'] = $this->repository->getQuantityProductInStorage($data['product_id'], $data['from_storage_id']);
-        $data['to_storage_now_quantity'] = $this->repository->getQuantityProductInStorage($data['product_id'], $data['to_storage_id']);
-        $data['from_storage_title'] = $this->repository->getStorageTitleById($data['from_storage_id']);
-        $data['to_storage_title'] = $this->repository->getStorageTitleById($data['to_storage_id']);
-        $data['product_title'] = $this->repository->getProductTitleById((int)$data['product_id']);
+        $product->setNowQuantityFromStorage($this->repository->getQuantityProductInStorage(
+            $product->getId(),
+            $storage->getFromId(),
+        ));
 
-        return $data;
+        $product->setNowQuantityToStorage($this->repository->getQuantityProductInStorage(
+            $product->getId(),
+            $storage->getToId(),
+        ));
+
+        $storage->setFromTitle($this->repository->getStorageTitleById($storage->getFromId()));
+        $storage->setToTitle($this->repository->getStorageTitleById($storage->getToId()));
+        $product->setTitle($this->repository->getProductTitleById($product->getId()));
+
+        return ['product' => $product, 'storage' => $storage];
     }
 
-    public function getPastQuantityProductInStorage(int $productId, array $storagesId): array
+    public function getPastQuantityProductInStorage(Product $product, Storage $storage): Product
     {
-        return [
-            'from_storage_past_quantity' => $this->repository->getQuantityProductInStorage($productId, $storagesId['from']),
-            'to_storage_past_quantity' => $this->repository->getQuantityProductInStorage($productId, $storagesId['to']),
-        ];
+        $product->setPastQuantityFromStorage($this->repository->getQuantityProductInStorage(
+            $product->getId(),
+            $storage->getFromId(),
+        ));
+
+        $product->setPastQuantityToStorage($this->repository->getQuantityProductInStorage(
+            $product->getId(),
+            $storage->getToId(),
+        ));
+
+        return $product;
     }
 
 }

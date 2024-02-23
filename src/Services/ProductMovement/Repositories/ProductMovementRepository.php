@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\ProductMoving\Repositories;
+namespace App\Services\ProductMovement\Repositories;
 
 use App\Services\BaseRepository;
 
