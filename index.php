@@ -35,23 +35,22 @@ if (!empty($_POST)) {
         $productMovingRepository = new App\Services\ProductMoving\Repositories\ProductMovingRepository($pdoDriver);
         $movingProductService = new App\Services\ProductMoving\ProductMovingService($productMovingRepository);
 
-        $logHistoryRepository = new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($pdoDriver);
-        $logHistoryProductMovingService = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService($logHistoryRepository);
+        $historyProductMovingRepository = new \App\Services\LogHistoryProductMoving\Repositories\HistoryProductMovingRepository($pdoDriver);
+        $historyProductMovingService = new \App\Services\LogHistoryProductMoving\HistoryProductMovingService($historyProductMovingRepository);
 
-        $result = $logHistoryProductMovingService->getPastQuantityWareHouses($data['product_id'], [$data['from_storage_id'], $data['to_storage_id']]);
+        $result = $historyProductMovingService->getPastQuantityWareHouses($data['product_id'], [$data['from_storage_id'], $data['to_storage_id']]);
 
-        $data = \array_merge($movingProductService->getNeedDataAboutProduct($data), $data);
+        $data = $movingProductService->getNeedDataAboutProduct($data);
         $movingProductService->movingProduct($data);
 
-        $data = [...$result, ...$data];
-        if (!empty($data)) {
-            $data = $logHistoryProductMovingService->obtainingRemainingDataAboutMovementOfTheProduct($data);
-            $logHistoryProductMovingService->addHistoryProductData($data);
+        $productInfo = [...$result, ...$data];
+        if (!empty($productInfo)) {
+            $productInfoForHistory = $historyProductMovingService->obtainingRemainingDataAboutMovementOfTheProduct($productInfo);
+            $historyProductMovingService->save($productInfoForHistory);
         }
+
     }
 
-    \header('Location: /');
-    die;
 }
 
 $homeRepository = new \App\Services\Home\Repositories\HomeRepository($pdoDriver);
@@ -59,14 +58,14 @@ $homeService = new App\Services\Home\HomeService($homeRepository);
 $products = $homeService->getAllProducts();
 $historyMovingProducts = $homeService->getHistoryMovingProducts();
 
-$warehouses = $homeService->getStorages();
+$storages = $homeService->getStorages();
 
 ?>
 <?php if (!empty($_GET['product_id']) && !empty($_GET['from_storage_id'])): ?>
     <form action="" method="POST">
         <div class="modal-body">
             <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
-                <?php foreach ($warehouses as $value): ?>
+                <?php foreach ($storages as $value): ?>
                     <option value="<?php echo $value['id'] ?>">
                         <?php echo $value['name'] ?>
                     </option>
@@ -75,7 +74,7 @@ $warehouses = $homeService->getStorages();
         </div>
 
         <label for="quantity" class="form-label">Количество</label>
-        <input name="quantity" class="form-control" id="quantity" aria-describedby="quantity">
+        <input name="quantity" class="form-control" id="quantity" value="<?php echo $_POST['quantity'] ?? '' ?>" aria-describedby="quantity">
         <button type="submit" name="product_id" value="<?php echo $_GET['product_id']; ?>" class="btn btn-primary">
             Переместить
         </button>

@@ -5,7 +5,7 @@ namespace App\Services\LogHistoryProductMoving;
 
 use App\Services\BaseService;
 
-class LogHistoryProductMovingService extends BaseService
+class HistoryProductMovingService extends BaseService
 {
     public function getStringProductInfo(array $data): string
     {
@@ -16,7 +16,7 @@ class LogHistoryProductMovingService extends BaseService
         return $string;
     }
 
-    public function addHistoryProductData(array $data): void
+    public function save(array $data): void
     {
         $result = $this->getStringProductInfo($data);
         $this->repository->addHistoryProductMoving($data['product_id'], $result);

@@ -5,7 +5,7 @@ namespace App\Services\LogHistoryProductMoving\Repositories;
 
 use App\Services\BaseRepository;
 
-class LogHistoryProductMovingRepository extends BaseRepository
+class HistoryProductMovingRepository extends BaseRepository
 {
     public function getProductTitleById(int $id): string
     {
