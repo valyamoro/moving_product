@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\ProductMovement\Repositories;
+namespace App\Services\Storage\Repositories;
 
 use App\Services\BaseRepository;
 
-class ProductMovementRepository extends BaseRepository
+class StorageRepository extends BaseRepository
 {
     public function updateProduct($quantity, $productId, $storageId): bool
     {
@@ -52,6 +52,42 @@ class ProductMovementRepository extends BaseRepository
         ]);
 
         return $this->getAllById($this->connection->lastInsertId());
+    }
+
+    public function getAll(): array
+    {
+        $query = 'select * from storages';
+
+        $this->connection->prepare($query)->execute();
+
+        return $this->connection->fetchAll();
+    }
+
+    public function getAllHistoryAboutMovementProduct(): array
+    {
+        $query = 'select * from history_product_moving order by id asc';
+
+        $this->connection->prepare($query)->execute();
+
+        return $this->connection->fetchAll();
+    }
+
+    public function saveHistory(int $productId, string $data): bool
+    {
+        $query = 'insert into history_product_moving(product_id, description) values (?, ?)';
+
+        $this->connection->prepare($query)->execute([$productId, $data]);
+
+        return (bool)$this->connection->rowCount();
+    }
+
+    public function getStorageNameById(int $id): string
+    {
+        $query = 'select name from storages where id=? limit 1';
+
+        $this->connection->prepare($query)->execute([$id]);
+
+        return $this->connection->fetch()['name'];
     }
 
 }

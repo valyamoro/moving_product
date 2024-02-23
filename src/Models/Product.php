@@ -9,7 +9,6 @@ class Product extends Model
 {
     private int $pastQuantityFromStorage;
     private int $pastQuantityToStorage;
-    private readonly string $title;
     private readonly int $nowQuantityFromStorage;
     private readonly int $nowQuantityToStorage;
     private readonly int $quantityDifferenceInCurrentStorage;
@@ -19,6 +18,7 @@ class Product extends Model
     public function __construct(
         private readonly int $id,
         private readonly int $quantity,
+        private readonly string $title,
     ) {
     }
 

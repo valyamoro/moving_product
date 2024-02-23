@@ -14,44 +14,39 @@ $dataBaseConfiguration = new DatabaseConfiguration(...$configuration);
 $dataBasePDOConnection = new DatabasePDOConnection($dataBaseConfiguration);
 $pdoDriver = new PDODriver($dataBasePDOConnection->connection());
 
+$productRepository = new \App\Services\Product\Repositories\ProductRepository($pdoDriver);
+$productService = new \App\Services\Product\ProductService($productRepository);
+
+$storageRepository = new \App\Services\Storage\Repositories\StorageRepository($pdoDriver);
+$storageService = new \App\Services\Storage\StorageService($storageRepository);
+
 if (!empty($_POST)) {
     $data = [
         'product_id' => (int)$_GET['product_id'],
         'from_storage_id' => (int)$_GET['from_storage_id'],
         'to_storage_id' => (int)$_POST['to_storage_id'],
-        'moving_quantity' => $_POST['quantity'],
+        'moving_quantity' => (int)$_POST['quantity'],
     ];
 
-    $productMovingRepository = new App\Services\ProductMovement\Repositories\ProductMovementRepository($pdoDriver);
-    $movingProductService = new App\Services\ProductMovement\ProductMovementService($productMovingRepository);
+    $product = new \App\Models\Product($data['product_id'], $data['moving_quantity'], $productService->getTitleById($data['product_id']));
+    $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id']);
 
-    $historyProductMovingRepository = new \App\Services\HistoryProductMovement\Repositories\HistoryProductMovementRepository($pdoDriver);
-    $historyProductMovingService = new \App\Services\HistoryProductMovement\HistoryProductMovementService($historyProductMovingRepository);
+    $productAndStorageCollection = $productService->getAllAboutProduct($product, $storage);
+    $storageService->moveProduct($productAndStorageCollection['product'], $productAndStorageCollection['storage']);
 
-    $product = new \App\Models\Product((int)$data['product_id'], (int)$data['moving_quantity']);
-    $storage = new \App\Models\Storage((int)$data['from_storage_id'], (int)$data['to_storage_id']);
+    $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
+    $storageService->saveHistory($productInfoAboutMovement);
 
-    $result = $historyProductMovingService->getPastQuantityProductInStorage($product, $storage);
-
-    $data = $movingProductService->getNeedDataAboutProduct($product, $storage);
-    $movingProductService->moveProduct($data['product'], $data['storage']);
-
-    $productInfoForHistory = $historyProductMovingService->getInfoAboutProductMovement($data['product'], $data['storage']);
-    $historyProductMovingService->save($productInfoForHistory);
     $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_GET['product_id']} со склада под номером {$_GET['from_storage_id']}
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
     \header('Location: /');
     die;
-
-
 }
 
-$homeRepository = new \App\Services\Home\Repositories\HomeRepository($pdoDriver);
-$homeService = new App\Services\Home\HomeService($homeRepository);
-$products = $homeService->getAllProducts();
-$historyMovingProducts = $homeService->getAllHistoryMovementProducts();
+$storages = $storageService->getAll();
 
-$storages = $homeService->getAllStorages();
+$products = $productService->getAll();
+$historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($products);
 
 ?>
 <?php if (!empty($_SESSION['errors'])): ?>
@@ -134,7 +129,7 @@ $storages = $homeService->getAllStorages();
     </tbody>
 </table>
 
-<?php if ($historyMovingProducts !== []): ?>
+<?php if (!empty($historyMovementProducts)): ?>
     <h3>История перемещений:</h3>
     <table class="table">
         <?php ?>
@@ -145,7 +140,7 @@ $storages = $homeService->getAllStorages();
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($historyMovingProducts as $value): ?>
+        <?php foreach ($historyMovementProducts as $value): ?>
             <tr>
                 <td><?php echo $value['product_id'] ?></td>
                 <td><?php echo $value['description'] . "\n" ?> </td>
