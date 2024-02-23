@@ -7,9 +7,9 @@ use App\Services\BaseRepository;
 
 class HomeRepository extends BaseRepository
 {
-    public function getWareHouses(): array
+    public function getStorages(): array
     {
-        $query = 'select * from warehouses order by id asc';
+        $query = 'select * from storages order by id asc';
 
         $this->connection->prepare($query)->execute();
 
@@ -18,10 +18,10 @@ class HomeRepository extends BaseRepository
 
     public function getAllProducts(): array
     {
-        $query = 'SELECT p.id, w.id AS warehouse_id, p.title, p.price, w.name, pw.quantity 
-          FROM product_warehouse AS pw
+        $query = 'SELECT p.id, w.id AS storage_id, p.title, p.price, w.name, pw.quantity 
+          FROM product_storage AS pw
           JOIN products AS p ON pw.product_id = p.id
-          JOIN warehouses AS w ON pw.warehouse_id = w.id
+          JOIN storages AS w ON pw.storage_id = w.id
           order by id asc';
 
         $this->connection->prepare($query)->execute();

@@ -34,9 +34,9 @@ class HomeService extends BaseService
         return $this->repository->getAllProducts();
     }
 
-    public function getWarehouses(): array
+    public function getStorages(): array
     {
-        return $this->repository->getWareHouses();
+        return $this->repository->getStorages();
     }
 
     private function deleteDuplicates(array $data, string $key): array

@@ -16,9 +16,9 @@ class LogHistoryProductMovingRepository extends BaseRepository
         return $this->connection->fetch()['title'];
     }
 
-    public function getWareHouseTitleById(int $id): string
+    public function getStorageTitleById(int $id): string
     {
-        $query = 'select name from warehouses where id=?';
+        $query = 'select name from storages where id=?';
 
         $this->connection->prepare($query)->execute([$id]);
 
@@ -34,15 +34,15 @@ class LogHistoryProductMovingRepository extends BaseRepository
         return (bool)$this->connection->rowCount();
     }
 
-    public function getQuantityWareHouseProduct(int $productId, int $wareHouseId): int
+    public function getQuantityStorageProduct(int $productId, int $storageId): int
     {
-        $query = 'select quantity from product_warehouse where product_id=? and warehouse_id=?';
+        $query = 'select quantity from product_storage where product_id=? and storage_id=?';
 
-        $this->connection->prepare($query)->execute([$productId, $wareHouseId]);
+        $this->connection->prepare($query)->execute([$productId, $storageId]);
 
         $result = $this->connection->fetch();
 
-        return $result === [] ? 0 : (int)$result['quantity'];
+        return !empty($result) ? (int)$result['quantity'] : 0;
     }
 
 }

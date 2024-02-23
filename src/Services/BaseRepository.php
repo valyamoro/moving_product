@@ -9,24 +9,15 @@ use App\Database\PDODriver;
 
 abstract class BaseRepository
 {
-    protected PDODriver $connection;
-    public function __construct(array $configuration) {
-        $this->connection = $this->connectionDB($configuration);
+    public function __construct(protected PDODriver $connection)
+    {
     }
 
-    private function connectionDB($configuration): PDODriver
+    public function getQuantityWareHousesProduct(int $productId, int $storageId): int
     {
-        $dataBaseConfiguration = new DatabaseConfiguration(...$configuration);
-        $dataBasePDOConnection = new DatabasePDOConnection($dataBaseConfiguration);
+        $query = 'select quantity from product_storage where product_id=? and storage_id=?';
 
-        return new PDODriver($dataBasePDOConnection->connection());
-    }
-
-    public function getQuantityWareHousesProduct(int $productId, int $wareHouseId): int
-    {
-        $query = 'select quantity from product_warehouse where product_id=? and warehouse_id=?';
-
-        $this->connection->prepare($query)->execute([$productId, $wareHouseId]);
+        $this->connection->prepare($query)->execute([$productId, $storageId]);
 
         $result = $this->connection->fetch();
         return [] === $result ? 0 : $result['quantity'];

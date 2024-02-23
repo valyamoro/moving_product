@@ -3,41 +3,50 @@ declare(strict_types=1);
 \error_reporting(-1);
 \session_start();
 
+use App\Database\DatabaseConfiguration;
+use App\Database\DatabasePDOConnection;
+use App\Database\PDODriver;
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 $configuration = require __DIR__ . '/config/db.php';
+$dataBaseConfiguration = new DatabaseConfiguration(...$configuration);
+$dataBasePDOConnection = new DatabasePDOConnection($dataBaseConfiguration);
+$pdoDriver = new PDODriver($dataBasePDOConnection->connection());
 
 if (!empty($_POST)) {
     $data = [
         'product_id' => (int)$_GET['product_id'],
-        'from_warehouse_id' => (int)$_GET['warehouse_id'],
-        'to_warehouse_id' => (int)$_POST['warehouse'],
+        'from_storage_id' => (int)$_GET['from_storage_id'],
+        'to_storage_id' => (int)$_POST['to_storage_id'],
         'moving_quantity' => $_POST['quantity'],
     ];
 
-    $formProductWareHouse = new \App\Models\FormProductWareHouseModel(
+    $formProductWareHouse = new \App\Models\FormProductStorage(
         $data['product_id'],
-        ['from' => $data['from_warehouse_id'], 'to' => $data['to_warehouse_id']],
+        ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
         $data['moving_quantity'],
     );
 
-    $formProductWareHouse->validator->setRules($formProductWareHouse->rules($configuration));
+    $formProductWareHouse->validator->setRules($formProductWareHouse->rules($pdoDriver));
     if (!$formProductWareHouse->validator->validate($formProductWareHouse)) {
         $_SESSION['errors'] = $formProductWareHouse->validator->getErrors();
     } else {
-        $serviceMovingProduct = new App\Services\ProductMoving\ProductMovingService(new App\Services\ProductMoving\Repositories\ProductMovingRepository($configuration));
-        $serviceLogHistoryProductMoving = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService(new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($configuration));
+        $productMovingRepository = new App\Services\ProductMoving\Repositories\ProductMovingRepository($pdoDriver);
+        $movingProductService = new App\Services\ProductMoving\ProductMovingService($productMovingRepository);
 
-        $result = $serviceLogHistoryProductMoving->getPastQuantityWareHouses($data['product_id'], [$data['from_warehouse_id'], $data['to_warehouse_id']]);
+        $logHistoryRepository = new \App\Services\LogHistoryProductMoving\Repositories\LogHistoryProductMovingRepository($pdoDriver);
+        $logHistoryProductMovingService = new \App\Services\LogHistoryProductMoving\LogHistoryProductMovingService($logHistoryRepository);
 
-        $data = \array_merge($serviceMovingProduct->getNeedDataAboutProduct($data), $data);
+        $result = $logHistoryProductMovingService->getPastQuantityWareHouses($data['product_id'], [$data['from_storage_id'], $data['to_storage_id']]);
 
-        $serviceMovingProduct->movingProduct($data);
+        $data = \array_merge($movingProductService->getNeedDataAboutProduct($data), $data);
+        $movingProductService->movingProduct($data);
 
         $data = [...$result, ...$data];
         if (!empty($data)) {
-            $data = $serviceLogHistoryProductMoving->obtainingRemainingDataAboutMovementOfTheProduct($data);
-            $serviceLogHistoryProductMoving->addHistoryProductData($data);
+            $data = $logHistoryProductMovingService->obtainingRemainingDataAboutMovementOfTheProduct($data);
+            $logHistoryProductMovingService->addHistoryProductData($data);
         }
     }
 
@@ -45,17 +54,18 @@ if (!empty($_POST)) {
     die;
 }
 
-$serviceHome = new App\Services\Home\HomeService(new \App\Services\Home\Repositories\HomeRepository($configuration));
-$products = $serviceHome->getAllProducts();
-$historyMovingProducts = $serviceHome->getHistoryMovingProducts();
+$homeRepository = new \App\Services\Home\Repositories\HomeRepository($pdoDriver);
+$homeService = new App\Services\Home\HomeService($homeRepository);
+$products = $homeService->getAllProducts();
+$historyMovingProducts = $homeService->getHistoryMovingProducts();
 
-$warehouses = $serviceHome->getWarehouses();
+$warehouses = $homeService->getStorages();
 
 ?>
-<?php if (!empty($_GET['product_id']) && !empty($_GET['warehouse_id'])): ?>
+<?php if (!empty($_GET['product_id']) && !empty($_GET['from_storage_id'])): ?>
     <form action="" method="POST">
         <div class="modal-body">
-            <label for="warehouse"></label><select name="warehouse" id="warehouse">
+            <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
                 <?php foreach ($warehouses as $value): ?>
                     <option value="<?php echo $value['id'] ?>">
                         <?php echo $value['name'] ?>
@@ -93,8 +103,6 @@ $warehouses = $serviceHome->getWarehouses();
         crossorigin="anonymous">
 </script>
 
-<link rel="stylesheet" href="../assets/css/modal.css">
-<script src="../assets/js/modal.js"></script>
 </body>
 <table class="table">
     <?php ?>
@@ -117,7 +125,7 @@ $warehouses = $serviceHome->getWarehouses();
             <td><?php echo $value['price']; ?> </td>
             <td><?php echo $value['quantity']; ?> </td>
             <td>
-                <a href="?product_id=<?php echo "{$value['id']}&warehouse_id={$value['warehouse_id']}"; ?>">
+                <a href="?product_id=<?php echo "{$value['id']}&from_storage_id={$value['storage_id']}"; ?>">
                     <button id="myBtn">Переместить продукт</button>
                 </a>
             </td>

@@ -10,7 +10,7 @@ class Validator
     public const RULE_REQUIRED = 'required';
     public const RULE_QUANTITY_MIN = 'min_quantity';
     public const RULE_QUANTITY_MAX = 'max_quantity';
-    public const RULE_WAREHOUSES_MATCH = 'warehouses_match';
+    public const RULE_STORAGE_MATCH = 'storages_match';
     public const RULE_NUMBERS = 'numbers';
 
     private array $rules;
@@ -44,8 +44,8 @@ class Validator
                     $this->addError(self::RULE_QUANTITY_MAX, $rule);
                 }
 
-                if ($ruleName === self::RULE_WAREHOUSES_MATCH && $rule['is_match']) {
-                    $this->addError(self::RULE_WAREHOUSES_MATCH);
+                if ($ruleName === self::RULE_STORAGE_MATCH && $rule['is_match']) {
+                    $this->addError(self::RULE_STORAGE_MATCH);
                 }
 
                 if ($ruleName === self::RULE_NUMBERS && !empty($value) && !\preg_match('/^\d+$/', (string)$value)) {
@@ -77,7 +77,7 @@ class Validator
             self::RULE_REQUIRED => 'Вы должны указать количество товаров',
             self::RULE_QUANTITY_MIN => 'Минимальное количество товаров {min_quantity}',
             self::RULE_QUANTITY_MAX => 'Максимальное количество товаров которое вы можете переместить с этого склада {max_quantity}',
-            self::RULE_WAREHOUSES_MATCH => 'Вы не можете переместить этот товар на этот же склад',
+            self::RULE_STORAGE_MATCH => 'Вы не можете переместить этот товар на этот же склад',
             self::RULE_NUMBERS => 'В этом поле должны быть только цифры!',
         ];
     }

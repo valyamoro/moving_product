@@ -7,7 +7,7 @@ class ValidatorTest extends TestCase
 {
     public function testValidateProduct(): void
     {
-        $formProductWareHouse = new \App\Models\FormProductWareHouseModel(
+        $formProductWareHouse = new \App\Models\FormProductStorage(
             1,
             ['from' => 5, 'to' => 6],
             5,

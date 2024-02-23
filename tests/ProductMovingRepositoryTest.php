@@ -22,7 +22,7 @@ class ProductMovingRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function testCanGetProductData(): void
     {
-        $result = $this->repository->getProductData($this->data['product_id'], $this->data['from_warehouse_id']);
+        $result = $this->repository->getProductByStorageId($this->data['product_id'], $this->data['from_warehouse_id']);
 
         $this->assertEmpty($result['quantity']);
     }
