@@ -25,22 +25,41 @@ if (!empty($_POST)) {
         'product_id' => (int)$_GET['product_id'],
         'from_storage_id' => (int)$_GET['from_storage_id'],
         'to_storage_id' => (int)$_POST['to_storage_id'],
-        'moving_quantity' => (int)$_POST['quantity'],
+        'moving_quantity' => $_POST['quantity'],
     ];
 
-    $product = new \App\Models\Product($data['product_id'], $data['moving_quantity'], $productService->getTitleById($data['product_id']));
-    $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id']);
+    $productValidator = new \App\Validations\ProductValidator(
+        $data['moving_quantity'],
+        $productService->getQuantityProductInStorage($data['product_id'], $data['from_storage_id']),
+        [
+            'from' => $data['from_storage_id'],
+            'to' => $data['to_storage_id']
+        ],
+    );
 
-    $productAndStorageCollection = $productService->getAllAboutProduct($product, $storage);
-    $storageService->moveProduct($productAndStorageCollection['product'], $productAndStorageCollection['storage']);
+    if (!$productValidator->validate()) {
+        $_SESSION['errors'] = $productValidator->getErrors();
+    } else {
+        $product = new \App\Models\Product(
+            $data['product_id'],
+            (int)$data['moving_quantity'],
+            $productService->getTitleById($data['product_id'])
+        );
+        
+        $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id']);
 
-    $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
-    $storageService->saveHistory($productInfoAboutMovement);
+        $productAndStorageCollection = $productService->getAllAboutProduct($product, $storage);
+        $storageService->moveProduct($productAndStorageCollection['product'], $productAndStorageCollection['storage']);
 
-    $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_GET['product_id']} со склада под номером {$_GET['from_storage_id']}
+        $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
+        $storageService->saveHistory($productInfoAboutMovement);
+
+        $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_GET['product_id']} со склада под номером {$_GET['from_storage_id']}
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
-    \header('Location: /');
-    die;
+        \header('Location: /');
+        die;
+    }
+
 }
 
 $storages = $storageService->getAll();

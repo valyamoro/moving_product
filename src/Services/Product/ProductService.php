@@ -47,4 +47,9 @@ class ProductService extends BaseService
         return $this->repository->getTitleById($id);
     }
 
+    public function getQuantityProductInStorage(int $productId, int $storageId): int
+    {
+        return $this->repository->getQuantityProductInStorage($productId, $storageId);
+    }
+
 }

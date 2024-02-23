@@ -109,9 +109,4 @@ class Product extends Model
         $this->quantityCurrentInStorage = $value;
     }
 
-    public function setTitle(string $value): void
-    {
-        $this->title = $value;
-    }
-
 }
