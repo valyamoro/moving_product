@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\LogHistoryProductMoving;
+namespace App\Services\HistoryProductMoving;
 
 use App\Services\BaseService;
 
@@ -10,8 +10,10 @@ class HistoryProductMovingService extends BaseService
     public function getStringProductInfo(array $data): string
     {
         $date = \date('d-m-Y H:i');
-        $string = "{$data['from_storage_title']} {$data['product_title']} был {$data['from_storage_past_quantity']} стало {$data['from_storage_now_quantity']} {$date}\n";
-        $string .= "{$data['to_storage_title']} {$data['product_title']} было {$data['to_storage_past_quantity']} перемещено {$data['moving_quantity']} стало {$data['to_storage_now_quantity']} {$date}";
+        $string = "{$data['from_storage_title']} {$data['product_title']} был {$data['from_storage_past_quantity']}
+         стало {$data['from_storage_now_quantity']} {$date}\n";
+        $string .= "| {$data['to_storage_title']} {$data['product_title']} было {$data['to_storage_past_quantity']}
+         перемещено {$data['moving_quantity']} стало {$data['to_storage_now_quantity']} {$date}";
 
         return $string;
     }

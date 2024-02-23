@@ -35,10 +35,11 @@ if (!empty($_POST)) {
         $productMovingRepository = new App\Services\ProductMoving\Repositories\ProductMovingRepository($pdoDriver);
         $movingProductService = new App\Services\ProductMoving\ProductMovingService($productMovingRepository);
 
-        $historyProductMovingRepository = new \App\Services\LogHistoryProductMoving\Repositories\HistoryProductMovingRepository($pdoDriver);
-        $historyProductMovingService = new \App\Services\LogHistoryProductMoving\HistoryProductMovingService($historyProductMovingRepository);
+        $historyProductMovingRepository = new \App\Services\HistoryProductMoving\Repositories\HistoryProductMovingRepository($pdoDriver);
+        $historyProductMovingService = new \App\Services\HistoryProductMoving\HistoryProductMovingService($historyProductMovingRepository);
 
-        $result = $historyProductMovingService->getPastQuantityWareHouses($data['product_id'], [$data['from_storage_id'], $data['to_storage_id']]);
+        $result = $historyProductMovingService->getPastQuantityWareHouses($data['product_id'],
+            [$data['from_storage_id'], $data['to_storage_id']]);
 
         $data = $movingProductService->getNeedDataAboutProduct($data);
         $movingProductService->movingProduct($data);
@@ -47,6 +48,8 @@ if (!empty($_POST)) {
         if (!empty($productInfo)) {
             $productInfoForHistory = $historyProductMovingService->obtainingRemainingDataAboutMovementOfTheProduct($productInfo);
             $historyProductMovingService->save($productInfoForHistory);
+            $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_GET['product_id']} со склада под номером {$_GET['from_storage_id']} 
+            на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
         }
 
     }
@@ -61,7 +64,21 @@ $historyMovingProducts = $homeService->getHistoryMovingProducts();
 $storages = $homeService->getStorages();
 
 ?>
+<?php if (!empty($_SESSION['errors'])): ?>
+    <?php foreach ($_SESSION['errors'] as $error): ?>
+        <?php echo \nl2br($error) . '<br>'; ?>
+    <?php endforeach; ?>
+    <?php unset($_SESSION['errors']); ?>
+    <br>
+<?php endif; ?>
+<?php if (!empty($_SESSION['success'])): ?>
+    <?php echo \nl2br($_SESSION['success']) . '<br>'; ?>
+    <?php unset($_SESSION['success']); ?>
+    <br>
+<?php endif; ?>
 <?php if (!empty($_GET['product_id']) && !empty($_GET['from_storage_id'])): ?>
+    Вы перемещаете продукт с номером <?php echo $_GET['product_id']; ?> <br>
+    Со склада под номером <?php echo $_GET['from_storage_id']; ?>
     <form action="" method="POST">
         <div class="modal-body">
             <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
@@ -74,19 +91,13 @@ $storages = $homeService->getStorages();
         </div>
 
         <label for="quantity" class="form-label">Количество</label>
-        <input name="quantity" class="form-control" id="quantity" value="<?php echo $_POST['quantity'] ?? '' ?>" aria-describedby="quantity">
+        <input name="quantity" class="form-control" id="quantity" value="<?php echo $_POST['quantity'] ?? '' ?>"
+               aria-describedby="quantity">
         <button type="submit" name="product_id" value="<?php echo $_GET['product_id']; ?>" class="btn btn-primary">
             Переместить
         </button>
     </form>
 <?php endif; ?>
-<?php if (!empty($_SESSION['errors'])): ?>
-    <?php foreach ($_SESSION['errors'] as $error): ?>
-        <?php echo \nl2br($error) . '<br>'; ?>
-    <?php endforeach; ?>
-    <?php unset($_SESSION['errors']); ?>
-<?php endif; ?>
-
 <!doctype html>
 <html lang="ru">
 <head>

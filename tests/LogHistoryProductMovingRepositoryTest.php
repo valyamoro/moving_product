@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 class LogHistoryProductMovingRepositoryTest extends \PHPUnit\Framework\TestCase
 {
-    private readonly \App\Services\LogHistoryProductMoving\Repositories\HistoryProductMovingRepository $repository;
+    private readonly \App\Services\HistoryProductMoving\Repositories\HistoryProductMovingRepository $repository;
 
     public function setUp(): void
     {
-        $this->repository = new \App\Services\LogHistoryProductMoving\Repositories\HistoryProductMovingRepository(require __DIR__ . '/../config/test_db.php');
+        $this->repository = new \App\Services\HistoryProductMoving\Repositories\HistoryProductMovingRepository(require __DIR__ . '/../config/test_db.php');
     }
 
     public function testCanGetProductTitle(): void

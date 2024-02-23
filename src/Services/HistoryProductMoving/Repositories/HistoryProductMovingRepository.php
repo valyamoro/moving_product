@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\LogHistoryProductMoving\Repositories;
+namespace App\Services\HistoryProductMoving\Repositories;
 
 use App\Services\BaseRepository;
 
