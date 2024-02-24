@@ -7,6 +7,7 @@ abstract class Validator
 {
     public const RULE_REQUIRED = 'required';
     protected array $errors = [];
+    abstract protected function checkRules(string $ruleName, string|array $rule): void;
 
     public function validate(): bool
     {
