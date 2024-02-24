@@ -61,6 +61,7 @@ class StorageService extends BaseService
                     $storage->getFromId(),
                 );
             }
+
             $this->repository->updateProduct(
                 $product->getQuantitySumInCurrentStorage(),
                 $product->getId(),

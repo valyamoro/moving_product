@@ -21,7 +21,7 @@ class ProductService extends BaseService
         ));
 
         $product->setQuantityDifferenceInCurrentStorage($product->getPastQuantityFromStorage() - $product->getQuantity());
-        $product->setQuantitySumInCurrentStorage($product->getPastQuantityFromStorage() + $product->getQuantity());
+        $product->setQuantitySumInCurrentStorage($product->getPastQuantityToStorage() + $product->getQuantity());
 
         if ($product->getPastQuantityToStorage() === 0) {
             $storage->setIsAdd(true);
