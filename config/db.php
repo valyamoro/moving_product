@@ -3,7 +3,7 @@
 return [
     'port' => 'mysql',
     'host' => 'localhost',
-    'dbname' => 'SystemProductsWarehouses',
+    'dbname' => 'product_moving',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8mb4',

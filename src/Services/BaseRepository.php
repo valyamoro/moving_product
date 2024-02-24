@@ -3,13 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Database\DatabaseConfiguration;
-use App\Database\DatabasePDOConnection;
-use App\Database\PDODriver;
+use App\Database\QueryBuilder;
 
 abstract class BaseRepository
 {
-    public function __construct(protected PDODriver $connection)
+    public function __construct(protected QueryBuilder $connection)
     {
     }
 

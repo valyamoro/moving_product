@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Database;
 
-class PDODriver
+class PDODriver extends QueryBuilder
 {
     private ?\PDOStatement $sth;
 

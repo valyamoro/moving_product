@@ -86,7 +86,8 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
         <div class="modal-body">
             <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
                 <?php foreach ($storages as $value): ?>
-                    <option value="<?php echo $value['id'] ?>">
+                    <?php $selected = ((int)$_POST['to_storage_id'] ?? null) === $value['id'] ? 'selected' : ''; ?>
+                    <option value="<?php echo $value['id'] ?>" <?php echo $selected ?>>
                         <?php echo $value['name'] ?>
                     </option>
                 <?php endforeach; ?>
