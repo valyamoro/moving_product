@@ -20,11 +20,6 @@ class ProductValidator extends Validator
     ) {
     }
 
-    public function getStoragesId(): array
-    {
-        return $this->storagesId;
-    }
-
     public function getMoveQuantity(): int|string
     {
         return $this->moveQuantity;
@@ -35,44 +30,36 @@ class ProductValidator extends Validator
         return $this->pastQuantityFromStorage;
     }
 
-    public function validate(): bool
+    public function getStoragesId(): array
     {
-        foreach ($this->rules() as $attribute => $rules) {
-            $getAttribute = 'get' . $attribute;
-            $value = $this->$getAttribute();
-            foreach ($rules as $rule) {
-                $ruleName = $rule;
-                if (\is_array($ruleName)) {
-                    $ruleName = $rule[0];
-                }
-
-                if ($ruleName === self::RULE_REQUIRED && empty($this->getMoveQuantity())) {
-                    $this->addError(self::RULE_REQUIRED);
-                }
-
-                if ($ruleName === self::RULE_QUANTITY_MIN && \is_numeric($this->getMoveQuantity()) && $this->getMoveQuantity() < $rule['min_quantity']) {
-                    $this->addError(self::RULE_QUANTITY_MIN, $rule);
-                }
-
-                if ($ruleName === self::RULE_QUANTITY_MAX && \is_numeric($this->getMoveQuantity()) && $this->getMoveQuantity() > $rule['max_quantity']) {
-                    $this->addError(self::RULE_QUANTITY_MAX, $rule);
-                }
-
-                if ($ruleName === self::RULE_STORAGE_MATCH && $rule['is_match']) {
-                    $this->addError(self::RULE_STORAGE_MATCH);
-                }
-
-                if ($ruleName === self::RULE_NUMBERS && !empty($value) && !\preg_match('/^\d+$/',
-                        (string)$this->getMoveQuantity())) {
-                    $this->addError(self::RULE_NUMBERS);
-                }
-            }
-        }
-
-        return empty($this->getErrors());
+        return $this->storagesId;
     }
 
-    private function rules(): array
+    protected function checkRules(string $ruleName, string|array $rule): void
+    {
+        if ($ruleName === self::RULE_REQUIRED && empty($this->getMoveQuantity())) {
+            $this->addError(self::RULE_REQUIRED);
+        }
+
+        if ($ruleName === self::RULE_QUANTITY_MIN && \is_numeric($this->getMoveQuantity()) && $this->getMoveQuantity() < $rule['min_quantity']) {
+            $this->addError(self::RULE_QUANTITY_MIN, $rule);
+        }
+
+        if ($ruleName === self::RULE_QUANTITY_MAX && \is_numeric($this->getMoveQuantity()) && $this->getMoveQuantity() > $rule['max_quantity']) {
+            $this->addError(self::RULE_QUANTITY_MAX, $rule);
+        }
+
+        if ($ruleName === self::RULE_STORAGE_MATCH && $rule['is_match']) {
+            $this->addError(self::RULE_STORAGE_MATCH);
+        }
+
+        if ($ruleName === self::RULE_NUMBERS && !empty($this->getMoveQuantity()) && !\preg_match('/^\d+$/',
+                (string)$this->getMoveQuantity())) {
+            $this->addError(self::RULE_NUMBERS);
+        }
+    }
+
+    protected function rules(): array
     {
         return [
             'moveQuantity' => [
@@ -83,7 +70,10 @@ class ProductValidator extends Validator
             ],
 
             'storagesId' => [
-                [self::RULE_STORAGE_MATCH, 'is_match' => $this->getStoragesId()['from'] === $this->getStoragesId()['to']],
+                [
+                    self::RULE_STORAGE_MATCH,
+                    'is_match' => $this->getStoragesId()['from'] === $this->getStoragesId()['to']
+                ],
             ],
 
         ];

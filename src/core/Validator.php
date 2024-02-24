@@ -8,7 +8,21 @@ abstract class Validator
     public const RULE_REQUIRED = 'required';
     protected array $errors = [];
 
-    abstract public function validate(): bool;
+    public function validate(): bool
+    {
+        foreach ($this->rules() as $rules) {
+            foreach ($rules as $rule) {
+                $ruleName = $rule;
+                if (\is_array($ruleName)) {
+                    $ruleName = $rule[0];
+                }
+
+                $this->checkRules($ruleName, $rule);
+            }
+        }
+
+        return empty($this->getErrors());
+    }
 
     protected function addError(string $rule, array $params = []): void
     {

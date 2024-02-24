@@ -30,11 +30,10 @@ if (!empty($_POST)) {
 
     $productValidator = new \App\Validations\ProductValidator(
         $data['moving_quantity'],
-        $productService->getQuantityProductInStorage($data['product_id'], $data['from_storage_id']),
-        [
-            'from' => $data['from_storage_id'],
-            'to' => $data['to_storage_id']
-        ],
+        $productService->getQuantityProductInStorage(
+            $data['product_id'],
+            $data['from_storage_id']),
+            ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
     );
 
     if (!$productValidator->validate()) {
@@ -43,9 +42,9 @@ if (!empty($_POST)) {
         $product = new \App\Models\Product(
             $data['product_id'],
             (int)$data['moving_quantity'],
-            $productService->getTitleById($data['product_id'])
+            $productService->getTitleById($data['product_id']),
         );
-        
+
         $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id']);
 
         $productAndStorageCollection = $productService->getAllAboutProduct($product, $storage);
