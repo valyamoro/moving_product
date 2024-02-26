@@ -47,8 +47,8 @@ if (!empty($_POST)) {
 
         $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id']);
 
-        $productAndStorageCollection = $productService->getAllAboutProduct($product, $storage);
-        $storageService->moveProduct($productAndStorageCollection['product'], $productAndStorageCollection['storage']);
+        $productService->getAllAboutProduct($product, $storage);
+        $storageService->moveProduct($product, $storage);
 
         $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
         $storageService->saveHistory($productInfoAboutMovement);
@@ -78,9 +78,6 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
     <?php echo \nl2br($_SESSION['success']) . '<br>'; ?>
     <?php unset($_SESSION['success']); ?>
     <br>
-<?php endif; ?>
-<?php if (!empty($_GET['product_id']) && !empty($_GET['from_storage_id'])): ?>
-
 <?php endif; ?>
 <!doctype html>
 <html lang="ru">
@@ -157,30 +154,3 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
         </tbody>
     </table>
 <?php endif; ?>
-<script>
-    var button = document.getElementById("openModal");
-
-    // Получаем значение атрибута "value"
-    var value = button.value;
-
-    // Отправка GET-запроса при клике на кнопку и открытие модального окна
-    document.getElementById('openModal').addEventListener('click', function() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', value, true);
-        xhr.send();
-
-        document.getElementById('myModal').style.display = 'flex';
-    });
-
-    // Закрытие модального окна при клике на крестик
-    document.getElementById('modalClose').addEventListener('click', function() {
-        document.getElementById('myModal').style.display = 'none';
-    });
-
-    // Закрытие модального окна при клике вне его области
-    window.addEventListener('click', function(event) {
-        if (event.target == document.getElementById('myModal')) {
-            document.getElementById('myModal').style.display = 'none';
-        }
-    });
-</script>
