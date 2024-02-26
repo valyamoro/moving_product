@@ -22,8 +22,8 @@ $storageService = new \App\Services\Storage\StorageService($storageRepository);
 
 if (!empty($_POST)) {
     $data = [
-        'product_id' => (int)$_GET['product_id'],
-        'from_storage_id' => (int)$_GET['from_storage_id'],
+        'product_id' => (int)$_POST['product_id'],
+        'from_storage_id' => (int)$_POST['from_storage_id'],
         'to_storage_id' => (int)$_POST['to_storage_id'],
         'moving_quantity' => $_POST['quantity'],
     ];
@@ -53,7 +53,7 @@ if (!empty($_POST)) {
         $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
         $storageService->saveHistory($productInfoAboutMovement);
 
-        $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_GET['product_id']} со склада под номером {$_GET['from_storage_id']}
+        $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_POST['product_id']} со склада под номером {$_POST['from_storage_id']}
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
         \header('Location: /');
         die;
@@ -61,7 +61,7 @@ if (!empty($_POST)) {
 
 }
 
-$storages = $storageService->getAll();
+$_SESSION['storages'] = $storageService->getAll();
 
 $products = $productService->getAll();
 $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($products);
@@ -80,27 +80,7 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
     <br>
 <?php endif; ?>
 <?php if (!empty($_GET['product_id']) && !empty($_GET['from_storage_id'])): ?>
-    Вы перемещаете продукт с номером <?php echo $_GET['product_id']; ?> <br>
-    Со склада под номером <?php echo $_GET['from_storage_id']; ?>
-    <form action="" method="POST">
-        <div class="modal-body">
-            <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
-                <?php foreach ($storages as $value): ?>
-                    <?php $selected = ((int)$_POST['to_storage_id'] ?? null) === $value['id'] ? 'selected' : ''; ?>
-                    <option value="<?php echo $value['id'] ?>" <?php echo $selected ?>>
-                        <?php echo $value['name'] ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
 
-        <label for="quantity" class="form-label">Количество</label>
-        <input name="quantity" class="form-control" id="quantity" value="<?php echo $_POST['quantity'] ?? '' ?>"
-               aria-describedby="quantity">
-        <button type="submit" name="product_id" value="<?php echo $_GET['product_id']; ?>" class="btn btn-primary">
-            Переместить
-        </button>
-    </form>
 <?php endif; ?>
 <!doctype html>
 <html lang="ru">
@@ -110,12 +90,21 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
     <title>Bootstrap demo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous">
 </script>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+<script src="assets/script.js"></script>
 
 </body>
 <table class="table">
@@ -139,9 +128,9 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
             <td><?php echo $value['price']; ?> </td>
             <td><?php echo $value['quantity']; ?> </td>
             <td>
-                <a href="?product_id=<?php echo "{$value['id']}&from_storage_id={$value['storage_id']}"; ?>">
-                    <button id="myBtn">Переместить продукт</button>
-                </a>
+                <button class="openModalBtn" data-product-id="<?php echo $value['id']; ?>" data-from-storage-id="<?php echo $value['storage_id']; ?>">
+                    Переместить
+                </button>
             </td>
         </tr>
     <?php endforeach; ?>
@@ -168,3 +157,30 @@ $historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($p
         </tbody>
     </table>
 <?php endif; ?>
+<script>
+    var button = document.getElementById("openModal");
+
+    // Получаем значение атрибута "value"
+    var value = button.value;
+
+    // Отправка GET-запроса при клике на кнопку и открытие модального окна
+    document.getElementById('openModal').addEventListener('click', function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', value, true);
+        xhr.send();
+
+        document.getElementById('myModal').style.display = 'flex';
+    });
+
+    // Закрытие модального окна при клике на крестик
+    document.getElementById('modalClose').addEventListener('click', function() {
+        document.getElementById('myModal').style.display = 'none';
+    });
+
+    // Закрытие модального окна при клике вне его области
+    window.addEventListener('click', function(event) {
+        if (event.target == document.getElementById('myModal')) {
+            document.getElementById('myModal').style.display = 'none';
+        }
+    });
+</script>
