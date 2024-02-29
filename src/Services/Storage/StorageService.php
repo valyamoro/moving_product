@@ -47,7 +47,7 @@ class StorageService extends BaseService
         }
     }
 
-    public function getAllHistoryAboutMovementProduct(Product $product): ?array
+    public function getAllHistoryAboutMovementProduct(Product $product): array
     {
         $result = [];
 
@@ -65,7 +65,6 @@ class StorageService extends BaseService
         }
 
         return $result;
-        return $this->deleteDuplicates($result, 'product_id');
     }
 
     public function deleteDuplicates(array $data, string $key): array
@@ -107,7 +106,6 @@ class StorageService extends BaseService
         $this->repository->saveHistory($productId, $productStorage);
     }
 
-// Поменять название, я уже ничего не получаю, а изменяю существующие объекты.
     public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): void
     {
         $productStorage->setNowQuantityFrom($this->repository->getQuantityProductInStorage(
@@ -119,9 +117,6 @@ class StorageService extends BaseService
             $product->getId(),
             $productStorage->getToId(),
         ));
-
-//        $productStorage->setFromName($this->repository->getStorageNameById($storage->getFromId()));
-//        $productStorage->setToName($this->repository->getStorageNameById($storage->getToId()));
     }
 
 }

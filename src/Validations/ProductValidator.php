@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace App\Validations;
 
 use App\core\Validator;
-use App\Models\Product;
-use App\Models\Storage;
 
 class ProductValidator extends Validator
 {

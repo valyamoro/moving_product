@@ -10,26 +10,26 @@ use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    public function getAllAboutProduct(Product $product, ProductStorage $storage): void
+    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): void
     {
-        $storage->setPastQuantityFrom($this->repository->getQuantityProductInStorage(
+        $productStorage->setPastQuantityFrom($this->repository->getQuantityProductInStorage(
             $product->getId(),
-            $storage->getFromId(),
+            $productStorage->getFromId(),
         ));
-        $storage->setPastQuantityTo($this->repository->getQuantityProductInStorage(
+        $productStorage->setPastQuantityTo($this->repository->getQuantityProductInStorage(
             $product->getId(),
-            $storage->getToId(),
+            $productStorage->getToId(),
         ));
 
-        $storage->setQuantityDifferenceInCurrent($storage->getPastQuantityFrom() - $storage->getMoveQuantity());
-        $storage->setQuantitySumInCurrent($storage->getPastQuantityTo() + $storage->getPastQuantityFrom());
+        $productStorage->setQuantityDifferenceInCurrent($productStorage->getPastQuantityFrom() - $productStorage->getMoveQuantity());
+        $productStorage->setQuantitySumInCurrent($productStorage->getPastQuantityTo() + $productStorage->getPastQuantityFrom());
 
-        if ($storage->getPastQuantityTo() === 0) {
-            $storage->setIsAdd(true);
-            $storage->setQuantityCurrentIn($storage->getQuantityDifferenceInCurrent());
+        if ($productStorage->getPastQuantityTo() === 0) {
+            $productStorage->setIsAdd(true);
+            $productStorage->setQuantityCurrentIn($productStorage->getQuantityDifferenceInCurrent());
         } else {
-            $storage->setIsAdd(false);
-            $storage->setQuantityCurrentIn($storage->getQuantitySumInCurrent());
+            $productStorage->setIsAdd(false);
+            $productStorage->setQuantityCurrentIn($productStorage->getQuantitySumInCurrent());
         }
     }
 
