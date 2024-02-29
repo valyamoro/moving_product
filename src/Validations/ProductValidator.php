@@ -15,7 +15,7 @@ class ProductValidator extends Validator
     public const RULE_NUMBERS = 'numbers';
 
     public function __construct(
-        private readonly int|string $moveQuantity,
+        private readonly int $moveQuantity,
         private readonly int $pastQuantityFromStorage,
         private readonly array $storagesId,
     ) {
@@ -40,23 +40,25 @@ class ProductValidator extends Validator
     {
         if ($ruleName === self::RULE_REQUIRED && empty($this->getMoveQuantity())) {
             $this->addError(self::RULE_REQUIRED);
-        }
+        } else {
+            if ($ruleName === self::RULE_NUMBERS &&
+                !empty($this->getMoveQuantity()) &&
+                !\preg_match('/^\d+$/', (string)$this->getMoveQuantity())
+            ) {
+                $this->addError(self::RULE_NUMBERS);
+            } else {
+                if ($ruleName === self::RULE_MIN_QUANTITY && $this->getMoveQuantity() && $this->getMoveQuantity() < $rule['min_quantity']) {
+                    $this->addError(self::RULE_MIN_QUANTITY, $rule);
+                }
 
-        if ($ruleName === self::RULE_MIN_QUANTITY && \is_numeric($this->getMoveQuantity()) && $this->getMoveQuantity() < $rule['min_quantity']) {
-            $this->addError(self::RULE_MIN_QUANTITY, $rule);
-        }
+                if ($ruleName === self::RULE_MAX_QUANTITY && $this->getMoveQuantity() && $this->getMoveQuantity() > $rule['max_quantity']) {
+                    $this->addError(self::RULE_MAX_QUANTITY, $rule);
+                }
+            }
 
-        if ($ruleName === self::RULE_MAX_QUANTITY && \is_numeric($this->getMoveQuantity()) && $this->getMoveQuantity() > $rule['max_quantity']) {
-            $this->addError(self::RULE_MAX_QUANTITY, $rule);
-        }
-
-        if ($ruleName === self::RULE_STORAGES_MATCH && $rule['is_match']) {
-            $this->addError(self::RULE_STORAGES_MATCH);
-        }
-
-        if ($ruleName === self::RULE_NUMBERS && !empty($this->getMoveQuantity()) && !\preg_match('/^\d+$/',
-                (string)$this->getMoveQuantity())) {
-            $this->addError(self::RULE_NUMBERS);
+            if ($ruleName === self::RULE_STORAGES_MATCH && $rule['is_match']) {
+                $this->addError(self::RULE_STORAGES_MATCH);
+            }
         }
     }
 

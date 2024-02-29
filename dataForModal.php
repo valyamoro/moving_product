@@ -13,7 +13,7 @@ session_start();
     </div>
 
     <label for="quantity" class="form-label">Количество</label>
-    <input name="quantity" class="form-control" id="quantity" aria-describedby="quantity">
+    <input type="text" name="quantity" id="numberInput" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
     <input type="hidden" name="product_id" value="<?php echo $_GET['product_id']; ?>">
     <input type="hidden" name="from_storage_id" value="<?php echo $_GET['from_storage_id']; ?>">
     <button type="submit" name="product_id" value="<?php echo $_GET['product_id']; ?>" class="btn btn-primary">
