@@ -19,44 +19,22 @@ class ProductValidator extends Validator
     ) {
     }
 
-    public function getMoveQuantity(): int|string
-    {
-        return $this->moveQuantity;
-    }
-
-    public function getPastQuantityFromStorage(): int
-    {
-        return $this->pastQuantityFromStorage;
-    }
-
-    public function getStoragesId(): array
-    {
-        return $this->storagesId;
-    }
-
     protected function checkRules(string $ruleName, string|array $rule): void
     {
-        if ($ruleName === self::RULE_REQUIRED && empty($this->getMoveQuantity())) {
+        if ($ruleName === self::RULE_REQUIRED && empty($this->moveQuantity)) {
             $this->addError(self::RULE_REQUIRED);
         } else {
-            if ($ruleName === self::RULE_NUMBERS &&
-                !empty($this->getMoveQuantity()) &&
-                !\preg_match('/^\d+$/', (string)$this->getMoveQuantity())
-            ) {
-                $this->addError(self::RULE_NUMBERS);
-            } else {
-                if ($ruleName === self::RULE_MIN_QUANTITY && $this->getMoveQuantity() && $this->getMoveQuantity() < $rule['min_quantity']) {
-                    $this->addError(self::RULE_MIN_QUANTITY, $rule);
-                }
-
-                if ($ruleName === self::RULE_MAX_QUANTITY && $this->getMoveQuantity() && $this->getMoveQuantity() > $rule['max_quantity']) {
-                    $this->addError(self::RULE_MAX_QUANTITY, $rule);
-                }
+            if ($ruleName === self::RULE_MIN_QUANTITY && $this->moveQuantity && $this->moveQuantity < $rule['min_quantity']) {
+                $this->addError(self::RULE_MIN_QUANTITY, $rule);
             }
 
-            if ($ruleName === self::RULE_STORAGES_MATCH && $rule['is_match']) {
-                $this->addError(self::RULE_STORAGES_MATCH);
+            if ($ruleName === self::RULE_MAX_QUANTITY && $this->moveQuantity && $this->moveQuantity > $rule['max_quantity']) {
+                $this->addError(self::RULE_MAX_QUANTITY, $rule);
             }
+        }
+
+        if ($ruleName === self::RULE_STORAGES_MATCH && $rule['is_match']) {
+            $this->addError(self::RULE_STORAGES_MATCH);
         }
     }
 
@@ -65,15 +43,14 @@ class ProductValidator extends Validator
         return [
             'moveQuantity' => [
                 self::RULE_REQUIRED,
-                self::RULE_NUMBERS,
                 [self::RULE_MIN_QUANTITY, 'min_quantity' => '1'],
-                [self::RULE_MAX_QUANTITY, 'max_quantity' => $this->getPastQuantityFromStorage()],
+                [self::RULE_MAX_QUANTITY, 'max_quantity' => $this->pastQuantityFromStorage],
             ],
 
             'storagesId' => [
                 [
                     self::RULE_STORAGES_MATCH,
-                    'is_match' => $this->getStoragesId()['from'] === $this->getStoragesId()['to']
+                    'is_match' => $this->storagesId['from'] === $this->storagesId['to']
                 ],
             ],
 
