@@ -6,8 +6,8 @@ namespace App\Models;
 class ProductStorage
 {
     private bool $isAdd;
-    private string $fromTitle;
-    private string $toTitle;
+    private string $fromName;
+    private string $toName;
     private int $nowQuantityFrom;
     private int $nowQuantityTo;
     private int $pastQuantityFrom;
@@ -23,14 +23,19 @@ class ProductStorage
     ) {
     }
 
+    public function getToName(): string
+    {
+        return $this->toName;
+    }
+
+    public function getFromName(): string
+    {
+        return $this->fromName;
+    }
+
     public function getNowQuantityFrom(): int
     {
         return $this->nowQuantityFrom;
-    }
-
-    public function setNowQuantityFrom(int $nowQuantityFrom): void
-    {
-        $this->nowQuantityFrom = $nowQuantityFrom;
     }
 
     public function getNowQuantityTo(): int
@@ -38,39 +43,22 @@ class ProductStorage
         return $this->nowQuantityTo;
     }
 
-    public function setNowQuantityTo(int $nowQuantityTo): void
-    {
-        $this->nowQuantityTo = $nowQuantityTo;
-    }
 
     public function getPastQuantityFrom(): int
     {
         return $this->pastQuantityFrom;
     }
 
-    public function setPastQuantityFrom(int $pastQuantityFrom): void
-    {
-        $this->pastQuantityFrom = $pastQuantityFrom;
-    }
 
     public function getPastQuantityTo(): int
     {
         return $this->pastQuantityTo;
     }
 
-    public function setPastQuantityTo(int $pastQuantityTo): void
-    {
-        $this->pastQuantityTo = $pastQuantityTo;
-    }
 
     public function getQuantityCurrentIn(): int
     {
         return $this->quantityCurrentIn;
-    }
-
-    public function setQuantityCurrentIn(int $quantityCurrentIn): void
-    {
-        $this->quantityCurrentIn = $quantityCurrentIn;
     }
 
     public function getQuantityDifferenceInCurrent(): int
@@ -78,34 +66,15 @@ class ProductStorage
         return $this->quantityDifferenceInCurrent;
     }
 
-    public function setQuantityDifferenceInCurrent(int $quantityDifferenceInCurrent): void
-    {
-        $this->quantityDifferenceInCurrent = $quantityDifferenceInCurrent;
-    }
 
     public function getQuantitySumInCurrent(): int
     {
         return $this->quantitySumInCurrent;
     }
 
-    public function setQuantitySumInCurrent(int $quantitySumInCurrent): void
-    {
-        $this->quantitySumInCurrent = $quantitySumInCurrent;
-    }
-
     public function getMoveQuantity(): int
     {
         return $this->moveQuantity;
-    }
-
-    public function getToTitle(): string
-    {
-        return $this->toTitle;
-    }
-
-    public function getFromTitle(): string
-    {
-        return $this->fromTitle;
     }
 
     public function getFromId(): int
@@ -123,19 +92,54 @@ class ProductStorage
         return $this->isAdd;
     }
 
+    public function setNowQuantityTo(int $nowQuantityTo): void
+    {
+        $this->nowQuantityTo = $nowQuantityTo;
+    }
+
+    public function setPastQuantityFrom(int $pastQuantityFrom): void
+    {
+        $this->pastQuantityFrom = $pastQuantityFrom;
+    }
+
+    public function setPastQuantityTo(int $pastQuantityTo): void
+    {
+        $this->pastQuantityTo = $pastQuantityTo;
+    }
+
+    public function setQuantityCurrentIn(int $quantityCurrentIn): void
+    {
+        $this->quantityCurrentIn = $quantityCurrentIn;
+    }
+
     public function setIsAdd(bool $value): void
     {
         $this->isAdd = $value;
     }
 
-    public function setToTitle(string $value): void
+    public function setToName(string $value): void
     {
         $this->toTitle = $value;
     }
 
-    public function setFromTitle(string $value): void
+    public function setQuantityDifferenceInCurrent(int $quantityDifferenceInCurrent): void
+    {
+        $this->quantityDifferenceInCurrent = $quantityDifferenceInCurrent;
+    }
+
+    public function setFromName(string $value): void
     {
         $this->fromTitle = $value;
+    }
+
+    public function setNowQuantityFrom(int $nowQuantityFrom): void
+    {
+        $this->nowQuantityFrom = $nowQuantityFrom;
+    }
+
+    public function setQuantitySumInCurrent(int $quantitySumInCurrent): void
+    {
+        $this->quantitySumInCurrent = $quantitySumInCurrent;
     }
 
 }

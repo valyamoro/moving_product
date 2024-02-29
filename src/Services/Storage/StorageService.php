@@ -4,7 +4,6 @@ namespace App\Services\Storage;
 
 use App\Models\Product;
 use App\Models\ProductStorage;
-use App\Models\Storage;
 use App\Services\BaseService;
 
 class StorageService extends BaseService
@@ -14,108 +13,115 @@ class StorageService extends BaseService
         return $this->repository->getAll();
     }
 
-    public function moveProduct(Product $product, ProductStorage $storage): void
+    public function moveProduct(Product $product, ProductStorage $productStorage): void
     {
-        if (false === $storage->getIsAdd()) {
-            if ($storage->getPastQuantityFrom() <= $product->getQuantity()) {
-                $this->repository->deleteProduct($product->getId(), $storage->getFromId());
+        if (false === $productStorage->getIsAdd()) {
+            if ($productStorage->getPastQuantityFrom() <= $product->getQuantity()) {
+                $this->repository->deleteProduct($product->getId(), $productStorage->getFromId());
             } else {
                 $this->repository->updateProduct(
-                    $storage->getQuantityDifferenceInCurrent(),
+                    $productStorage->getQuantityDifferenceInCurrent(),
                     $product->getId(),
-                    $storage->getFromId(),
+                    $productStorage->getFromId(),
                 );
             }
 
             $this->repository->updateProduct(
-                $storage->getQuantitySumInCurrent(),
+                $productStorage->getQuantitySumInCurrent(),
                 $product->getId(),
-                $storage->getToId(),
+                $productStorage->getToId(),
             );
         } else {
-            if ($storage->getQuantityCurrentIn() === 0) {
-                $this->repository->deleteProduct($product->getId(), $storage->getFromId());
+            if ($productStorage->getQuantityCurrentIn() === 0) {
+                $this->repository->deleteProduct($product->getId(), $productStorage->getFromId());
             } else {
                 $this->repository->updateProduct(
-                    $storage->getQuantityCurrentIn(),
+                    $productStorage->getQuantityCurrentIn(),
                     $product->getId(),
-                    $storage->getFromId(),
+                    $productStorage->getFromId(),
                 );
             }
 
-            $this->repository->addProduct($product->getId(), $storage->getToId(), $storage->getMoveQuantity());
+            $this->repository->addProduct($product->getId(), $productStorage->getToId(),
+                $productStorage->getMoveQuantity());
         }
     }
 
-    public function getAllHistoryAboutMovementProduct(array $products): array
+    public function getAllHistoryAboutMovementProduct(Product $product): ?array
     {
         $result = [];
 
-        $historyMoves = $this->repository->getAllHistoryAboutMovementProduct();
+        $string = '';
+        $historyMoves = $this->repository->getHistoryAboutMovementProduct($product->getId());
 
-        foreach ($products as $value) {
-            $string = '';
-            foreach ($historyMoves as $historyMove) {
-                if ($value['id'] === $historyMove['product_id']) {
-                    $string .= ($historyMove['description'] . '<br>');
-                }
+//        $historyMoves = $this->deleteDuplicates($this->repository->getHistoryAboutMovementProduct($product->getId()), 'product_id');
+        foreach ($historyMoves as $value) {
+            if ($value['product_id'] === $product->getId()) {
+                $string = $this->getStringProductInfo($product, $value);
             }
 
             if (!empty($string)) {
-                $result[] = ['product_id' => $value['id'], 'description' => $string];
+                $result[] = ['product_id' => $product->getId(), 'description' => $string];
             }
         }
 
-        return $this->deleteDuplicates($result, 'product_id');
+        return $result;
     }
 
     private function deleteDuplicates(array $data, string $key): array
     {
         $uniqueIds = [];
 
-        return \array_filter($data, function($item) use (&$uniqueIds, $key) {
-            if (!\in_array($item[$key], $uniqueIds)) {
-                $uniqueIds[] = $item[$key];
-                return true;
+        return \array_filter($data, function ($item) use (&$uniqueIds, $key) {
+            if (is_array($item)) {
+                if (!isset($item[$key])) {
+                    return false;
+                }
+                if (!\in_array($item[$key], $uniqueIds)) {
+                    $uniqueIds[] = $item[$key];
+                    return true;
+                }
             }
-
             return false;
         });
     }
 
-    public function getStringProductInfo(Product $product, Storage $storage): string
+    public function getStringProductInfo(Product $product, array $data): string
     {
-        $date = \date('d-m-Y H:i');
-        $string = "{$storage->getFromTitle()} {$product->getTitle()} был {$storage->getPastQuantityFrom()}
-        стало {$product->getNowQuantityFrom()} {$date}\n";
+        $string = "{$this->getById($data['from_storage_id'])['name']} {$product->getTitle()} был {$data['past_quantity_from_storage']}
+        стало {$data['now_quantity_from_storage']} {$data['created_at']}\n";
 
-        $string .= "| {$storage->getToTitle()} {$product->getTitle()} было {$storage->getPastQuantityTo()}
-        перемещено {$product->getQuantity()} стало {$product->getNowQuantityTo()} {$date}";
+        $string .= "| {$this->getById($data['to_storage_id'])['name']} {$product->getTitle()} было {$data['past_quantity_to_storage']}
+        перемещено {$data['move_quantity']} стало {$data['now_quantity_to_storage']} {$data['created_at']}";
 
         return $string;
     }
 
-    public function saveHistory(array $data): void
+    private function getById(int $id): array
     {
-        $result = $this->getStringProductInfo($data['product'], $data['storage']);
-        $this->repository->saveHistory($data['product']->getId(), $result);
+        return $this->repository->getById($id);
     }
 
-    // Поменять название, я уже ничего не получаю, а изменяю существующие объекты.
-    public function getInfoAboutProductMovement(Product $product, Storage $storage): void
+    public function saveHistory(int $productId, ProductStorage $productStorage): void
     {
-        $storage->setNowQuantityFrom($this->repository->getQuantityProductInStorage(
+        $this->repository->saveHistory($productId, $productStorage);
+    }
+
+// Поменять название, я уже ничего не получаю, а изменяю существующие объекты.
+    public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): void
+    {
+        $productStorage->setNowQuantityFrom($this->repository->getQuantityProductInStorage(
             $product->getId(),
-            $storage->getFromId(),
+            $productStorage->getFromId(),
         ));
 
-        $storage->setNowQuantityTo($this->repository->getQuantityProductInStorage(
+        $productStorage->setNowQuantityTo($this->repository->getQuantityProductInStorage(
             $product->getId(),
-            $storage->getToId(),
+            $productStorage->getToId(),
         ));
 
-        $storage->setFromTitle($this->repository->getStorageNameById($storage->getFromId()));
-        $storage->setToTitle($this->repository->getStorageNameById($storage->getToId()));
+//        $productStorage->setFromName($this->repository->getStorageNameById($storage->getFromId()));
+//        $productStorage->setToName($this->repository->getStorageNameById($storage->getToId()));
     }
 
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services\Storage\Repositories;
 
+use App\Models\ProductStorage;
 use App\Services\BaseRepository;
 
 class StorageRepository extends BaseRepository
@@ -63,31 +64,42 @@ class StorageRepository extends BaseRepository
         return $this->connection->fetchAll();
     }
 
-    public function getAllHistoryAboutMovementProduct(): array
+    public function getHistoryAboutMovementProduct(int $productId): array
     {
-        $query = 'select * from history_product_moving order by id asc';
+        $query = 'select * from history_movement_product where product_id=? order by id asc';
 
-        $this->connection->prepare($query)->execute();
+        $this->connection->prepare($query)->execute([$productId]);
 
         return $this->connection->fetchAll();
     }
 
-    public function saveHistory(int $productId, string $data): bool
+    public function saveHistory(int $productId, ProductStorage $productStorage): bool
     {
-        $query = 'insert into history_product_moving(product_id, description) values (?, ?)';
+        $query = 'insert into history_movement_product(product_id, from_storage_id, to_storage_id,
+                past_quantity_from_storage, now_quantity_from_storage,
+                past_quantity_to_storage, now_quantity_to_storage, move_quantity) values (?, ?, ?, ?, ?, ?, ?, ?)';
 
-        $this->connection->prepare($query)->execute([$productId, $data]);
+        $this->connection->prepare($query)->execute([
+            $productId,
+            $productStorage->getFromId(),
+            $productStorage->getToId(),
+            $productStorage->getPastQuantityFrom(),
+            $productStorage->getNowQuantityFrom(),
+            $productStorage->getPastQuantityTo(),
+            $productStorage->getNowQuantityTo(),
+            $productStorage->getMoveQuantity(),
+        ]);
 
         return (bool)$this->connection->rowCount();
     }
 
-    public function getStorageNameById(int $id): string
+    public function getById(int $id): array
     {
-        $query = 'select name from storages where id=? limit 1';
+        $query = 'select * from storages where id=? limit 1';
 
         $this->connection->prepare($query)->execute([$id]);
 
-        return $this->connection->fetch()['name'];
+        return $this->connection->fetch();
     }
 
 }

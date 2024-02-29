@@ -53,14 +53,17 @@ if (!empty($_POST)) {
         $productData['updated_at'],
     );
 
-    $storage = new \App\Models\ProductStorage($data['from_storage_id'], $data['to_storage_id'],
-        (int)$data['move_quantity'], $product);
+    $productStorage = new \App\Models\ProductStorage(
+        $data['from_storage_id'],
+        $data['to_storage_id'],
+        (int)$data['move_quantity'],
+    );
 
-    $productService->getAllAboutProduct($product, $storage);
-    $storageService->moveProduct($product, $storage);
+    $productService->getAllAboutProduct($product, $productStorage);
+    $storageService->moveProduct($product, $productStorage);
 
-//        $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
-//        $storageService->saveHistory($productInfoAboutMovement);
+    $storageService->getInfoAboutProductMovement($product, $productStorage);
+    $storageService->saveHistory($product->getId(), $productStorage);
 
     $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_POST['product_id']} со склада под номером {$_POST['from_storage_id']}
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
@@ -74,6 +77,8 @@ $_SESSION['storages'] = $storageService->getAll();
 
 $products = [];
 $storages = [];
+$historyMovementProducts = [];
+
 $data = $productService->getAll();
 foreach ($data as $value) {
     $product = new \App\Models\Product(
@@ -92,10 +97,9 @@ foreach ($data as $value) {
         $value['storage_updated'],
         $product,
     );
+
+    $historyMovementProducts[] = $storageService->getAllHistoryAboutMovementProduct($product);
 }
-
-//$historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($products);
-
 ?>
 <?php if (!empty($_SESSION['errors'])): ?>
     <?php foreach ($_SESSION['errors'] as $error): ?>
@@ -152,6 +156,7 @@ foreach ($data as $value) {
             <td><?php echo $storage->getProduct()->getId() ?></td>
             <td><?php echo $storage->getProduct()->getTitle() ?></td>
             <td><?php echo $storage->getName(); ?> </td>
+            <td><?php echo $storage->getProduct()->getPrice(); ?> </td>
             <td><?php echo $storage->getProduct()->getQuantity(); ?> </td>
             <td>
                 <button class="openModalBtn" data-product-id="<?php echo $storage->getProduct()->getId(); ?>"
@@ -163,7 +168,6 @@ foreach ($data as $value) {
     <?php endforeach; ?>
     </tbody>
 </table>
-
 <?php if (!empty($historyMovementProducts)): ?>
     <h3>История перемещений:</h3>
     <table class="table">
@@ -176,10 +180,14 @@ foreach ($data as $value) {
         </thead>
         <tbody>
         <?php foreach ($historyMovementProducts as $value): ?>
-            <tr>
-                <td><?php echo $value['product_id'] ?></td>
-                <td><?php echo $value['description'] . "\n" ?> </td>
-            </tr>
+            <?php if (!empty($value)): ?>
+                <?php foreach ($value as $item): ?>
+                    <tr>
+                        <td><?php echo $item['product_id'] ?></td>
+                        <td><?php echo $item['description'] . "\n" ?> </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
         <?php endforeach; ?>
         </tbody>
     </table>
