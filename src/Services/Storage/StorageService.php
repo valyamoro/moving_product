@@ -54,21 +54,21 @@ class StorageService extends BaseService
         $string = '';
         $historyMoves = $this->repository->getHistoryAboutMovementProduct($product->getId());
 
-//        $historyMoves = $this->deleteDuplicates($this->repository->getHistoryAboutMovementProduct($product->getId()), 'product_id');
         foreach ($historyMoves as $value) {
             if ($value['product_id'] === $product->getId()) {
-                $string = $this->getStringProductInfo($product, $value);
+                $string .= $this->getStringProductInfo($product, $value);
             }
 
             if (!empty($string)) {
-                $result[] = ['product_id' => $product->getId(), 'description' => $string];
+                $result = ['product_id' => $product->getId(), 'description' => $string];
             }
         }
 
         return $result;
+        return $this->deleteDuplicates($result, 'product_id');
     }
 
-    private function deleteDuplicates(array $data, string $key): array
+    public function deleteDuplicates(array $data, string $key): array
     {
         $uniqueIds = [];
 

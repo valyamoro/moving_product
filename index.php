@@ -100,6 +100,7 @@ foreach ($data as $value) {
 
     $historyMovementProducts[] = $storageService->getAllHistoryAboutMovementProduct($product);
 }
+$historyMovementProducts = $storageService->deleteDuplicates($historyMovementProducts, 'product_id');
 ?>
 <?php if (!empty($_SESSION['errors'])): ?>
     <?php foreach ($_SESSION['errors'] as $error): ?>
@@ -180,14 +181,10 @@ foreach ($data as $value) {
         </thead>
         <tbody>
         <?php foreach ($historyMovementProducts as $value): ?>
-            <?php if (!empty($value)): ?>
-                <?php foreach ($value as $item): ?>
-                    <tr>
-                        <td><?php echo $item['product_id'] ?></td>
-                        <td><?php echo $item['description'] . "\n" ?> </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            <tr>
+                <td><?php echo $value['product_id'] ?></td>
+                <td><?php echo $value['description'] . "\n" ?> </td>
+            </tr>
         <?php endforeach; ?>
         </tbody>
     </table>
