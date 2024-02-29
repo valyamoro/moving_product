@@ -9,7 +9,7 @@ class ProductRepository extends BaseRepository
 {
     public function getAll(): array
     {
-        $query = 'SELECT p.id, w.id AS storage_id, p.title, p.price, w.name, pw.quantity 
+        $query = 'SELECT p.id, w.id AS storage_id, p.title, p.price, w.name, pw.quantity, w.created_at AS storage_created, w.updated_at AS storage_updated, p.created_at, p.updated_at
           FROM product_storage AS pw
           JOIN products AS p ON pw.product_id = p.id
           JOIN storages AS w ON pw.storage_id = w.id

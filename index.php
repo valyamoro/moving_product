@@ -43,37 +43,55 @@ if (!empty($_POST)) {
 //    if (!$productValidator->validate()) {
 //        $_SESSION['errors'] = $productValidator->getErrors();
 //    } else {
-        $productData = $productService->getById($data['product_id']);
-        $product = new \App\Models\Product(
-            $productData['id'],
-            $productData['title'],
-            $productData['price'],
-            (int)$productData['quantity'],
-            $productData['created_at'],
-            $productData['updated_at'],
-        );
+    $productData = $productService->getById($data['product_id']);
+    $product = new \App\Models\Product(
+        $productData['id'],
+        $productData['title'],
+        $productData['price'],
+        (int)$productData['quantity'],
+        $productData['created_at'],
+        $productData['updated_at'],
+    );
 
-        $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id'], (int)$data['move_quantity']);
+    $storage = new \App\Models\ProductStorage($data['from_storage_id'], $data['to_storage_id'],
+        (int)$data['move_quantity'], $product);
 
-        $productService->getAllAboutProduct($product, $storage);
-        $storageService->moveProduct($product, $storage);
+    $productService->getAllAboutProduct($product, $storage);
+    $storageService->moveProduct($product, $storage);
 
 //        $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
 //        $storageService->saveHistory($productInfoAboutMovement);
 
-        $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_POST['product_id']} со склада под номером {$_POST['from_storage_id']}
+    $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_POST['product_id']} со склада под номером {$_POST['from_storage_id']}
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
-        \header('Location: /');
-        die;
+    \header('Location: /');
+    die;
 //    }
 
 }
 
 $_SESSION['storages'] = $storageService->getAll();
 
-$products = $productService->getAll();
-foreach ($products as $product) {
+$products = [];
+$storages = [];
+$data = $productService->getAll();
+foreach ($data as $value) {
+    $product = new \App\Models\Product(
+        (int)$value['id'],
+        $value['title'],
+        (int)$value['price'],
+        (int)$value['quantity'],
+        $value['created_at'],
+        $value['updated_at'],
+    );
 
+    $storages[] = new App\Models\Storage(
+        (int)$value['storage_id'],
+        $value['name'],
+        $value['storage_created'],
+        $value['storage_updated'],
+        $product,
+    );
 }
 
 //$historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($products);
@@ -129,15 +147,15 @@ foreach ($products as $product) {
     </tr>
     </thead>
     <tbody>
-    <?php foreach ($products as $value): ?>
+    <?php foreach ($storages as $storage): ?>
         <tr>
-            <td><?php echo $value['id'] ?></td>
-            <td><?php echo $value['title'] ?></td>
-            <td><?php echo $value['name'] ?></td>
-            <td><?php echo $value['price']; ?> </td>
-            <td><?php echo $value['quantity']; ?> </td>
+            <td><?php echo $storage->getProduct()->getId() ?></td>
+            <td><?php echo $storage->getProduct()->getTitle() ?></td>
+            <td><?php echo $storage->getName(); ?> </td>
+            <td><?php echo $storage->getProduct()->getQuantity(); ?> </td>
             <td>
-                <button class="openModalBtn" data-product-id="<?php echo $value['id']; ?>" data-from-storage-id="<?php echo $value['storage_id']; ?>">
+                <button class="openModalBtn" data-product-id="<?php echo $storage->getProduct()->getId(); ?>"
+                        data-from-storage-id="<?php echo $storage->getId(); ?>">
                     Переместить
                 </button>
             </td>

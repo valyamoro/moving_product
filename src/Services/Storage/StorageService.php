@@ -3,6 +3,7 @@
 namespace App\Services\Storage;
 
 use App\Models\Product;
+use App\Models\ProductStorage;
 use App\Models\Storage;
 use App\Services\BaseService;
 
@@ -13,7 +14,7 @@ class StorageService extends BaseService
         return $this->repository->getAll();
     }
 
-    public function moveProduct(Product $product, Storage $storage): void
+    public function moveProduct(Product $product, ProductStorage $storage): void
     {
         if (false === $storage->getIsAdd()) {
             if ($storage->getPastQuantityFrom() <= $product->getQuantity()) {

@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace App\Services\Product;
 
 use App\Models\Product;
+use App\Models\ProductStorage;
 use App\Models\Storage;
 use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    public function getAllAboutProduct(Product $product, Storage $storage): void
+    public function getAllAboutProduct(Product $product, ProductStorage $storage): void
     {
         $storage->setPastQuantityFrom($this->repository->getQuantityProductInStorage(
             $product->getId(),
