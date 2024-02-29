@@ -3,6 +3,10 @@ declare(strict_types=1);
 \error_reporting(-1);
 \session_start();
 
+foreach ($_POST as $key => $value) {
+    $_POST[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
+}
+
 use App\Database\DatabaseConfiguration;
 use App\Database\DatabasePDOConnection;
 use App\Database\PDODriver;
@@ -25,46 +29,54 @@ if (!empty($_POST)) {
         'product_id' => (int)$_POST['product_id'],
         'from_storage_id' => (int)$_POST['from_storage_id'],
         'to_storage_id' => (int)$_POST['to_storage_id'],
-        'moving_quantity' => $_POST['quantity'],
+        'move_quantity' => $_POST['quantity'],
     ];
 
-    $productValidator = new \App\Validations\ProductValidator(
-        $data['moving_quantity'],
-        $productService->getQuantityProductInStorage(
-            $data['product_id'],
-            $data['from_storage_id']),
-            ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
-    );
+//    $productValidator = new \App\Validations\ProductValidator(
+//        $data['move_quantity'],
+//        $productService->getQuantityProductInStorage(
+//            $data['product_id'],
+//            $data['from_storage_id']),
+//            ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
+//    );
 
-    if (!$productValidator->validate()) {
-        $_SESSION['errors'] = $productValidator->getErrors();
-    } else {
+//    if (!$productValidator->validate()) {
+//        $_SESSION['errors'] = $productValidator->getErrors();
+//    } else {
+        $productData = $productService->getById($data['product_id']);
         $product = new \App\Models\Product(
-            $data['product_id'],
-            (int)$data['moving_quantity'],
-            $productService->getTitleById($data['product_id']),
+            $productData['id'],
+            $productData['title'],
+            $productData['price'],
+            (int)$productData['quantity'],
+            $productData['created_at'],
+            $productData['updated_at'],
         );
 
-        $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id']);
+        $storage = new \App\Models\Storage($data['from_storage_id'], $data['to_storage_id'], (int)$data['move_quantity']);
 
         $productService->getAllAboutProduct($product, $storage);
         $storageService->moveProduct($product, $storage);
 
-        $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
-        $storageService->saveHistory($productInfoAboutMovement);
+//        $productInfoAboutMovement = $storageService->getInfoAboutProductMovement($product, $storage);
+//        $storageService->saveHistory($productInfoAboutMovement);
 
         $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_POST['product_id']} со склада под номером {$_POST['from_storage_id']}
             на склад под номером {$_POST['to_storage_id']} в количестве {$_POST['quantity']} штук.";
         \header('Location: /');
         die;
-    }
+//    }
 
 }
 
 $_SESSION['storages'] = $storageService->getAll();
 
 $products = $productService->getAll();
-$historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($products);
+foreach ($products as $product) {
+
+}
+
+//$historyMovementProducts = $storageService->getAllHistoryAboutMovementProduct($products);
 
 ?>
 <?php if (!empty($_SESSION['errors'])): ?>

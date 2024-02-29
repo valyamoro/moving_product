@@ -42,9 +42,9 @@ abstract class Validator
     {
         return [
             self::RULE_REQUIRED => 'Вы должны указать количество товаров',
-            static::RULE_QUANTITY_MIN => 'Минимальное количество товаров {min_quantity}',
-            static::RULE_QUANTITY_MAX => 'Максимальное количество товаров которое вы можете переместить с этого склада {max_quantity}',
-            static::RULE_STORAGE_MATCH => 'Вы не можете переместить этот товар на этот же склад',
+            static::RULE_MIN_QUANTITY => 'Минимальное количество товаров {min_quantity}',
+            static::RULE_MAX_QUANTITY => 'Максимальное количество товаров которое вы можете переместить с этого склада {max_quantity}',
+            static::RULE_STORAGES_MATCH => 'Вы не можете переместить этот товар на этот же склад',
             static::RULE_NUMBERS => 'В этом поле должны быть только цифры!',
         ];
     }

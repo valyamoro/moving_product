@@ -13,6 +13,39 @@ class StorageService extends BaseService
         return $this->repository->getAll();
     }
 
+    public function moveProduct(Product $product, Storage $storage): void
+    {
+        if (false === $storage->getIsAdd()) {
+            if ($storage->getPastQuantityFrom() <= $product->getQuantity()) {
+                $this->repository->deleteProduct($product->getId(), $storage->getFromId());
+            } else {
+                $this->repository->updateProduct(
+                    $storage->getQuantityDifferenceInCurrent(),
+                    $product->getId(),
+                    $storage->getFromId(),
+                );
+            }
+
+            $this->repository->updateProduct(
+                $storage->getQuantitySumInCurrent(),
+                $product->getId(),
+                $storage->getToId(),
+            );
+        } else {
+            if ($storage->getQuantityCurrentIn() === 0) {
+                $this->repository->deleteProduct($product->getId(), $storage->getFromId());
+            } else {
+                $this->repository->updateProduct(
+                    $storage->getQuantityCurrentIn(),
+                    $product->getId(),
+                    $storage->getFromId(),
+                );
+            }
+
+            $this->repository->addProduct($product->getId(), $storage->getToId(), $storage->getMoveQuantity());
+        }
+    }
+
     public function getAllHistoryAboutMovementProduct(array $products): array
     {
         $result = [];
@@ -49,47 +82,14 @@ class StorageService extends BaseService
         });
     }
 
-    public function moveProduct(Product $product, Storage $storage): void
-    {
-        if (false === $storage->getIsAdd()) {
-            if ($product->getQuantityFromStorage() <= $product->getQuantity()) {
-                $this->repository->deleteProduct($product->getId(), $storage->getFromId());
-            } else {
-                $this->repository->updateProduct(
-                    $product->getQuantityDifferenceInCurrentStorage(),
-                    $product->getId(),
-                    $storage->getFromId(),
-                );
-            }
-
-            $this->repository->updateProduct(
-                $product->getQuantitySumInCurrentStorage(),
-                $product->getId(),
-                $storage->getToId(),
-            );
-        } else {
-            if ($product->getQuantityCurrentInStorage() === 0) {
-                $this->repository->deleteProduct($product->getId(), $storage->getFromId());
-            } else {
-                $this->repository->updateProduct(
-                    $product->getQuantityCurrentInStorage(),
-                    $product->getId(),
-                    $storage->getFromId(),
-                );
-            }
-
-            $this->repository->addProduct($product->getId(), $storage->getToId(), $product->getQuantity());
-        }
-    }
-
     public function getStringProductInfo(Product $product, Storage $storage): string
     {
         $date = \date('d-m-Y H:i');
-        $string = "{$storage->getFromTitle()} {$product->getTitle()} был {$product->getPastQuantityFromStorage()}
-        стало {$product->getNowQuantityFromStorage()} {$date}\n";
+        $string = "{$storage->getFromTitle()} {$product->getTitle()} был {$storage->getPastQuantityFrom()}
+        стало {$product->getNowQuantityFrom()} {$date}\n";
 
-        $string .= "| {$storage->getToTitle()} {$product->getTitle()} было {$product->getPastQuantityToStorage()}
-        перемещено {$product->getQuantity()} стало {$product->getNowQuantityToStorage()} {$date}";
+        $string .= "| {$storage->getToTitle()} {$product->getTitle()} было {$storage->getPastQuantityTo()}
+        перемещено {$product->getQuantity()} стало {$product->getNowQuantityTo()} {$date}";
 
         return $string;
     }
@@ -100,22 +100,21 @@ class StorageService extends BaseService
         $this->repository->saveHistory($data['product']->getId(), $result);
     }
 
-    public function getInfoAboutProductMovement(Product $product, Storage $storage): array
+    // Поменять название, я уже ничего не получаю, а изменяю существующие объекты.
+    public function getInfoAboutProductMovement(Product $product, Storage $storage): void
     {
-        $product->setNowQuantityFromStorage($this->repository->getQuantityProductInStorage(
+        $storage->setNowQuantityFrom($this->repository->getQuantityProductInStorage(
             $product->getId(),
             $storage->getFromId(),
         ));
 
-        $product->setNowQuantityToStorage($this->repository->getQuantityProductInStorage(
+        $storage->setNowQuantityTo($this->repository->getQuantityProductInStorage(
             $product->getId(),
             $storage->getToId(),
         ));
 
         $storage->setFromTitle($this->repository->getStorageNameById($storage->getFromId()));
         $storage->setToTitle($this->repository->getStorageNameById($storage->getToId()));
-
-        return ['product' => $product, 'storage' => $storage];
     }
 
 }

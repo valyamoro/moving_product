@@ -7,54 +7,29 @@ use App\core\Model;
 
 class Product extends Model
 {
-    private int $pastQuantityFromStorage;
-    private int $pastQuantityToStorage;
-    private readonly int $nowQuantityFromStorage;
-    private readonly int $nowQuantityToStorage;
-    private readonly int $quantityDifferenceInCurrentStorage;
-    private readonly int $quantityCurrentInStorage;
-    private readonly int $quantitySumInCurrentStorage;
-
     public function __construct(
         private readonly int $id,
-        private readonly int $quantity,
         private readonly string $title,
+        private readonly int $price,
+        private readonly int $quantity,
+        private readonly string $createdAt,
+        private readonly string $updatedAt,
     ) {
     }
 
-    public function getPastQuantityFromStorage(): int
+    public function getPrice(): int
     {
-        return $this->pastQuantityFromStorage;
+        return $this->price;
     }
 
-    public function getPastQuantityToStorage(): int
+    public function getCreatedAt(): string
     {
-        return $this->pastQuantityToStorage;
+        return $this->createdAt;
     }
 
-    public function getNowQuantityFromStorage(): int
+    public function getUpdatedAt(): string
     {
-        return $this->nowQuantityFromStorage;
-    }
-
-    public function getNowQuantityToStorage(): int
-    {
-        return $this->nowQuantityToStorage;
-    }
-
-    public function getQuantityCurrentInStorage(): int
-    {
-        return $this->quantityCurrentInStorage;
-    }
-
-    public function getQuantityDifferenceInCurrentStorage(): int
-    {
-        return $this->quantityDifferenceInCurrentStorage;
-    }
-
-    public function getQuantitySumInCurrentStorage(): int
-    {
-        return $this->quantitySumInCurrentStorage;
+        return $this->updatedAt;
     }
 
     public function getTitle(): string
@@ -62,10 +37,6 @@ class Product extends Model
         return $this->title;
     }
 
-    public function getQuantityFromStorage(): int
-    {
-        return $this->pastQuantityFromStorage;
-    }
     public function getId(): int
     {
         return $this->id;
@@ -74,39 +45,6 @@ class Product extends Model
     public function getQuantity(): int
     {
         return $this->quantity;
-    }
-
-    public function setPastQuantityFromStorage(int $value): void
-    {
-        $this->pastQuantityFromStorage = $value;
-    }
-
-    public function setPastQuantityToStorage(int $value): void
-    {
-        $this->pastQuantityToStorage = $value;
-    }
-    public function setNowQuantityFromStorage(int $value): void
-    {
-        $this->nowQuantityFromStorage = $value;
-    }
-
-    public function setNowQuantityToStorage(int $value): void
-    {
-        $this->nowQuantityToStorage = $value;
-    }
-
-    public function setQuantityDifferenceInCurrentStorage(int $value): void
-    {
-        $this->quantityDifferenceInCurrentStorage = $value;
-    }
-    public function setQuantitySumInCurrentStorage(int $value): void
-    {
-        $this->quantitySumInCurrentStorage = $value;
-    }
-
-    public function setQuantityCurrentStorage(int $value): void
-    {
-        $this->quantityCurrentInStorage = $value;
     }
 
 }

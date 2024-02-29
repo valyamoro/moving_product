@@ -9,32 +9,27 @@ use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    public function getAllAboutProduct(Product $product, Storage $storage): array
+    public function getAllAboutProduct(Product $product, Storage $storage): void
     {
-        $product->setPastQuantityFromStorage($this->repository->getQuantityProductInStorage(
+        $storage->setPastQuantityFrom($this->repository->getQuantityProductInStorage(
             $product->getId(),
             $storage->getFromId(),
         ));
-        $product->setPastQuantityToStorage($this->repository->getQuantityProductInStorage(
+        $storage->setPastQuantityTo($this->repository->getQuantityProductInStorage(
             $product->getId(),
             $storage->getToId(),
         ));
 
-        $product->setQuantityDifferenceInCurrentStorage($product->getPastQuantityFromStorage() - $product->getQuantity());
-        $product->setQuantitySumInCurrentStorage($product->getPastQuantityToStorage() + $product->getQuantity());
+        $storage->setQuantityDifferenceInCurrent($storage->getPastQuantityFrom() - $storage->getMoveQuantity());
+        $storage->setQuantitySumInCurrent($storage->getPastQuantityTo() + $storage->getPastQuantityFrom());
 
-        if ($product->getPastQuantityToStorage() === 0) {
+        if ($storage->getPastQuantityTo() === 0) {
             $storage->setIsAdd(true);
-            $product->setQuantityCurrentStorage($product->getQuantityDifferenceInCurrentStorage());
+            $storage->setQuantityCurrentIn($storage->getQuantityDifferenceInCurrent());
         } else {
             $storage->setIsAdd(false);
-            $product->setQuantityCurrentStorage($product->getQuantitySumInCurrentStorage());
+            $storage->setQuantityCurrentIn($storage->getQuantitySumInCurrent());
         }
-
-        return [
-            'product' => $product,
-            'storage' => $storage,
-        ];
     }
 
     public function getAll(): array
@@ -42,9 +37,9 @@ class ProductService extends BaseService
         return $this->repository->getAll();
     }
 
-    public function getTitleById(int $id): string
+    public function getById(int $id): array
     {
-        return $this->repository->getTitleById($id);
+        return $this->repository->getById($id);
     }
 
     public function getQuantityProductInStorage(int $productId, int $storageId): int

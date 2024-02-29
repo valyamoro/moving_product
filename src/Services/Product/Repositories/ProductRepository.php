@@ -20,13 +20,13 @@ class ProductRepository extends BaseRepository
         return $this->connection->fetchAll();
     }
 
-    public function getTitleById(int $id): string
+    public function getById(int $id): array
     {
-        $query = 'select title from products where id=? limit 1';
+        $query = 'select * from products where id=? limit 1';
 
         $this->connection->prepare($query)->execute([$id]);
 
-        return $this->connection->fetch()['title'];
+        return $this->connection->fetch();
     }
 
 }
