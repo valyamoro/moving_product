@@ -2,6 +2,7 @@
 
 namespace App\Services\Storage;
 
+use App\Exceptions\ExceptionEmptyQuantityProduct;
 use App\Models\Product;
 use App\Models\ProductStorage;
 use App\Services\BaseService;
@@ -13,37 +14,45 @@ class StorageService extends BaseService
         return $this->repository->getAll();
     }
 
-    public function moveProduct(Product $product, ProductStorage $productStorage): void
+    public function moveProduct(Product $product, ProductStorage $productStorage): ?Product
     {
-        if (false === $productStorage->getIsAdd()) {
-            if ($productStorage->getPastQuantityFrom() <= $product->getQuantity()) {
-                $this->repository->deleteProduct($product->getId(), $productStorage->getFromId());
+        if ($productStorage->getIsAdd()) {
+            if ($productStorage->getPastQuantityFromStorage() <= $product->getQuantity()) {
+                $this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId());
             } else {
                 $this->repository->updateProduct(
-                    $productStorage->getQuantityDifferenceInCurrent(),
+                    $productStorage->getQuantityDifferenceInCurrentStorage(),
                     $product->getId(),
-                    $productStorage->getFromId(),
+                    $productStorage->getFromStorageId(),
                 );
             }
 
-            $this->repository->updateProduct(
-                $productStorage->getQuantitySumInCurrent(),
+            $result = $this->repository->updateProduct(
+                $productStorage->getQuantitySumInCurrentStorage(),
                 $product->getId(),
-                $productStorage->getToId(),
+                $productStorage->getToStorageId(),
             );
+
+            // здесь необязательно.
+            return $result ? new Product(...$result) : null;
         } else {
             if ($productStorage->getQuantityCurrentIn() === 0) {
-                $this->repository->deleteProduct($product->getId(), $productStorage->getFromId());
+                $this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId()); // переместить вверх
             } else {
                 $this->repository->updateProduct(
                     $productStorage->getQuantityCurrentIn(),
                     $product->getId(),
-                    $productStorage->getFromId(),
+                    $productStorage->getFromStorageId(),
                 );
             }
 
-            $this->repository->addProduct($product->getId(), $productStorage->getToId(),
-                $productStorage->getMoveQuantity());
+            $result = $this->repository->addProduct(
+                $product->getId(),
+                $productStorage->getToStorageId(),
+                $productStorage->getMoveQuantity(),
+            );
+
+            return $result ? new Product(...$result) : null;
         }
     }
 
@@ -88,7 +97,7 @@ class StorageService extends BaseService
     public function getStringProductInfo(Product $product, array $data): string
     {
         $string = "{$this->getById($data['from_storage_id'])['name']} {$product->getTitle()} был {$data['past_quantity_from_storage']}
-        стало {$data['now_quantity_from_storage']} {$data['created_at']}\n";
+        стало {$data['now_quantity_from_storage']} {$data['created_at']}";
 
         $string .= "| {$this->getById($data['to_storage_id'])['name']} {$product->getTitle()} было {$data['past_quantity_to_storage']}
         перемещено {$data['move_quantity']} стало {$data['now_quantity_to_storage']} {$data['created_at']}";
@@ -106,17 +115,12 @@ class StorageService extends BaseService
         $this->repository->saveHistory($productId, $productStorage);
     }
 
-    public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): void
+    /**
+     * @throws ExceptionEmptyQuantityProduct
+     */
+    public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): ProductStorage
     {
-        $productStorage->setNowQuantityFrom($this->repository->getQuantityProductInStorage(
-            $product->getId(),
-            $productStorage->getFromId(),
-        ));
-
-        $productStorage->setNowQuantityTo($this->repository->getQuantityProductInStorage(
-            $product->getId(),
-            $productStorage->getToId(),
-        ));
+        return $this->getNowQuantityProductStorage($product, $productStorage);
     }
 
 }

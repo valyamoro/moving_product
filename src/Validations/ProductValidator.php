@@ -31,10 +31,10 @@ class ProductValidator extends Validator
             if ($ruleName === self::RULE_MAX_QUANTITY && $this->moveQuantity && $this->moveQuantity > $rule['max_quantity']) {
                 $this->addError(self::RULE_MAX_QUANTITY, $rule);
             }
-        }
 
-        if ($ruleName === self::RULE_STORAGES_MATCH && $rule['is_match']) {
-            $this->addError(self::RULE_STORAGES_MATCH);
+            if ($ruleName === self::RULE_STORAGES_MATCH && $rule['is_match']) {
+                $this->addError(self::RULE_STORAGES_MATCH);
+            }
         }
     }
 

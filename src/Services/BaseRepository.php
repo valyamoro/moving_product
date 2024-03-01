@@ -11,14 +11,13 @@ abstract class BaseRepository
     {
     }
 
-    public function getQuantityProductInStorage(int $productId, int $storageId): int
+    public function getAllProductStorage(int $productId, int $storageId): array
     {
-        $query = 'select quantity from product_storage where product_id=? and storage_id=? limit 1';
+        $query = 'select * from product_storage where product_id=? and storage_id=? limit 1';
 
         $this->connection->prepare($query)->execute([$productId, $storageId]);
 
-        $result = $this->connection->fetch();
-        return !empty($result) ? (int)$result['quantity'] : 0;
+        return $this->connection->fetch();
     }
 
 }

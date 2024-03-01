@@ -8,7 +8,7 @@ use App\Services\BaseRepository;
 
 class StorageRepository extends BaseRepository
 {
-    public function updateProduct($quantity, $productId, $storageId): bool
+    public function updateProduct($quantity, $productId, $storageId): array
     {
         $query = 'update product_storage set quantity=? where product_id=? and storage_id=?';
 
@@ -18,7 +18,7 @@ class StorageRepository extends BaseRepository
             $storageId,
         ]);
 
-        return (bool)$this->connection->rowCount();
+        return $this->connection->rowCount() ? $this->getById($productId) : [];
     }
 
     public function deleteProduct($productId, $storageId): bool

@@ -5,71 +5,59 @@ namespace App\Models;
 
 class ProductStorage
 {
-    private bool $isAdd;
-    private string $fromName;
-    private string $toName;
-    private int $nowQuantityFrom;
-    private int $nowQuantityTo;
-    private int $pastQuantityFrom;
-    private int $pastQuantityTo;
-    private int $quantityCurrentIn;
-    private int $quantityDifferenceInCurrent;
-    private int $quantitySumInCurrent;
+    private bool $isMoveProduct;
+    private int $nowQuantityFromStorage;
+    private int $nowQuantityToStorage;
+    private int $pastQuantityFromStorage;
+    private int $pastQuantityToStorage;
+    private int $quantityCurrentInStorage;
+    private int $quantityDifferenceInCurrentStorage;
+    private int $quantitySumInCurrentStorage;
 
     public function __construct(
-        private readonly int $fromId,
-        private readonly int $toId,
+        private readonly int $fromStorageId,
+        private readonly int $toStorageId,
         private readonly int $moveQuantity,
     ) {
     }
 
-    public function getToName(): string
+    public function getNowQuantityFromStorage(): int
     {
-        return $this->toName;
+        return $this->nowQuantityFromStorage;
     }
 
-    public function getFromName(): string
+    public function getNowQuantityToStorage(): int
     {
-        return $this->fromName;
-    }
-
-    public function getNowQuantityFrom(): int
-    {
-        return $this->nowQuantityFrom;
-    }
-
-    public function getNowQuantityTo(): int
-    {
-        return $this->nowQuantityTo;
+        return $this->nowQuantityToStorage;
     }
 
 
-    public function getPastQuantityFrom(): int
+    public function getPastQuantityFromStorage(): int
     {
-        return $this->pastQuantityFrom;
+        return $this->pastQuantityFromStorage;
     }
 
 
-    public function getPastQuantityTo(): int
+    public function getPastQuantityToStorage(): int
     {
-        return $this->pastQuantityTo;
+        return $this->pastQuantityToStorage;
     }
 
 
-    public function getQuantityCurrentIn(): int
+    public function getQuantityCurrentInStorage(): int
     {
-        return $this->quantityCurrentIn;
+        return $this->quantityCurrentInStorage;
     }
 
-    public function getQuantityDifferenceInCurrent(): int
+    public function getQuantityDifferenceInCurrentStorage(): int
     {
-        return $this->quantityDifferenceInCurrent;
+        return $this->quantityDifferenceInCurrentStorage;
     }
 
 
-    public function getQuantitySumInCurrent(): int
+    public function getQuantitySumInCurrentStorage(): int
     {
-        return $this->quantitySumInCurrent;
+        return $this->quantitySumInCurrentStorage;
     }
 
     public function getMoveQuantity(): int
@@ -77,69 +65,59 @@ class ProductStorage
         return $this->moveQuantity;
     }
 
-    public function getFromId(): int
+    public function getFromStorageId(): int
     {
-        return $this->fromId;
+        return $this->fromStorageId;
     }
 
-    public function getToId(): int
+    public function getToStorageId(): int
     {
-        return $this->toId;
+        return $this->toStorageId;
     }
 
-    public function getIsAdd(): bool
+    public function getIsMoveProduct(): bool
     {
-        return $this->isAdd;
+        return $this->isMoveProduct;
     }
 
-    public function setNowQuantityTo(int $nowQuantityTo): void
+    public function setNowQuantityToStorage(int $value): void
     {
-        $this->nowQuantityTo = $nowQuantityTo;
+        $this->nowQuantityToStorage = $value;
     }
 
-    public function setPastQuantityFrom(int $pastQuantityFrom): void
+    public function setPastQuantityFromStorage(int $value): void
     {
-        $this->pastQuantityFrom = $pastQuantityFrom;
+        $this->pastQuantityFromStorage = $value;
     }
 
-    public function setPastQuantityTo(int $pastQuantityTo): void
+    public function setPastQuantityToStorage(int $value): void
     {
-        $this->pastQuantityTo = $pastQuantityTo;
+        $this->pastQuantityToStorage = $value;
     }
 
-    public function setQuantityCurrentIn(int $quantityCurrentIn): void
+    public function setQuantityCurrentInStorage(int $value): void
     {
-        $this->quantityCurrentIn = $quantityCurrentIn;
+        $this->quantityCurrentInStorage = $value;
     }
 
-    public function setIsAdd(bool $value): void
+    public function setIsMoveProduct(bool $value): void
     {
-        $this->isAdd = $value;
+        $this->isMoveProduct = $value;
     }
 
-    public function setToName(string $value): void
+    public function setQuantityDifferenceInCurrentStorage(int $value): void
     {
-        $this->toTitle = $value;
+        $this->quantityDifferenceInCurrentStorage = $value;
     }
 
-    public function setQuantityDifferenceInCurrent(int $quantityDifferenceInCurrent): void
+    public function setNowQuantityFromStorage(int $value): void
     {
-        $this->quantityDifferenceInCurrent = $quantityDifferenceInCurrent;
+        $this->nowQuantityFromStorage = $value;
     }
 
-    public function setFromName(string $value): void
+    public function setQuantitySumInCurrentStorage(int $value): void
     {
-        $this->fromTitle = $value;
-    }
-
-    public function setNowQuantityFrom(int $nowQuantityFrom): void
-    {
-        $this->nowQuantityFrom = $nowQuantityFrom;
-    }
-
-    public function setQuantitySumInCurrent(int $quantitySumInCurrent): void
-    {
-        $this->quantitySumInCurrent = $quantitySumInCurrent;
+        $this->quantitySumInCurrentStorage = $value;
     }
 
 }

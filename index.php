@@ -21,22 +21,22 @@ $storageRepository = new \App\Services\Storage\Repositories\StorageRepository($p
 $storageService = new \App\Services\Storage\StorageService($storageRepository);
 
 if (!empty($_POST)) {
+    $data = [];
     foreach ($_REQUEST as $key => $value) {
-        $_REQUEST[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
+        $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
     }
 
     $data = [
-        'product_id' => (int)$_POST['product_id'],
-        'from_storage_id' => (int)$_POST['from_storage_id'],
-        'to_storage_id' => (int)$_POST['to_storage_id'],
-        'move_quantity' => (int)$_POST['quantity'],
+        'product_id' => (int)$data['product_id'],
+        'from_storage_id' => (int)$data['from_storage_id'],
+        'to_storage_id' => (int)$data['to_storage_id'],
+        'move_quantity' => (int)$data['quantity'],
     ];
 
+    $productStorageData = $productService->getAllProductInStorage($data['product_id'], $data['from_storage_id']);
     $productValidator = new \App\Validations\ProductValidator(
         $data['move_quantity'],
-        $productService->getQuantityProductInStorage(
-            $data['product_id'],
-            $data['from_storage_id']),
+        $productStorageData['quantity'],
         ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
     );
 
@@ -56,13 +56,20 @@ if (!empty($_POST)) {
         $productStorage = new \App\Models\ProductStorage(
             $data['from_storage_id'],
             $data['to_storage_id'],
-            (int)$data['move_quantity'],
+            $data['move_quantity'],
         );
 
-        $productService->getAllAboutProduct($product, $productStorage);
+        try {
+            $productStorage = $productService->getAllAboutProduct($product, $productStorage);
+        } catch (\App\Exceptions\ExceptionEmptyQuantityProduct $e) {
+
+        }
+
         $storageService->moveProduct($product, $productStorage);
 
-        $storageService->getInfoAboutProductMovement($product, $productStorage);
+        $productStorage = $storageService->getInfoAboutProductMovement($product, $productStorage);
+
+        if (!empty($productStorage->get))
         $storageService->saveHistory($product->getId(), $productStorage);
 
         $_SESSION['success'] = "Вы успешно переместили продукт с номером {$_POST['product_id']} со склада под номером {$_POST['from_storage_id']}
@@ -70,7 +77,6 @@ if (!empty($_POST)) {
         \header('Location: /');
         die;
     }
-
 }
 
 $_SESSION['storages'] = $storageService->getAll();
@@ -100,7 +106,9 @@ foreach ($data as $value) {
 
     $historyMovementProducts[] = $storageService->getAllHistoryAboutMovementProduct($product);
 }
+
 $historyMovementProducts = $storageService->deleteDuplicates($historyMovementProducts, 'product_id');
+
 ?>
 <?php if (!empty($_SESSION['errors'])): ?>
     <?php foreach ($_SESSION['errors'] as $error): ?>

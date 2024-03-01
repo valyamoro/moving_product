@@ -3,34 +3,32 @@ declare(strict_types=1);
 
 namespace App\Services\Product;
 
+use App\Exceptions\ExceptionEmptyQuantityProduct;
 use App\Models\Product;
 use App\Models\ProductStorage;
-use App\Models\Storage;
 use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): void
+    /**
+     * @throws ExceptionEmptyQuantityProduct
+     */
+    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): ProductStorage
     {
-        $productStorage->setPastQuantityFrom($this->repository->getQuantityProductInStorage(
-            $product->getId(),
-            $productStorage->getFromId(),
-        ));
-        $productStorage->setPastQuantityTo($this->repository->getQuantityProductInStorage(
-            $product->getId(),
-            $productStorage->getToId(),
-        ));
+        $productStorage = $this->getPastQuantityProductStorage($product, $productStorage);
 
-        $productStorage->setQuantityDifferenceInCurrent($productStorage->getPastQuantityFrom() - $productStorage->getMoveQuantity());
-        $productStorage->setQuantitySumInCurrent($productStorage->getPastQuantityTo() + $productStorage->getPastQuantityFrom());
+        $productStorage->setQuantityDifferenceInCurrentStorage($productStorage->getPastQuantityFromStorage() - $productStorage->getMoveQuantity());
+        $productStorage->setQuantitySumInCurrentStorage($productStorage->getPastQuantityToStorage() + $productStorage->getPastQuantityFromStorage());
 
-        if ($productStorage->getPastQuantityTo() === 0) {
-            $productStorage->setIsAdd(true);
-            $productStorage->setQuantityCurrentIn($productStorage->getQuantityDifferenceInCurrent());
+        if ($productStorage->getPastQuantityToStorage() === 0) {
+            $productStorage->setIsMoveProduct(true);
+            $productStorage->setQuantityCurrentInStorage($productStorage->getQuantityDifferenceInCurrentStorage());
         } else {
-            $productStorage->setIsAdd(false);
-            $productStorage->setQuantityCurrentIn($productStorage->getQuantitySumInCurrent());
+            $productStorage->setIsMoveProduct(false);
+            $productStorage->setQuantityCurrentInStorage($productStorage->getQuantitySumInCurrentStorage());
         }
+
+        return $productStorage;
     }
 
     public function getAll(): array
@@ -43,9 +41,9 @@ class ProductService extends BaseService
         return $this->repository->getById($id);
     }
 
-    public function getQuantityProductInStorage(int $productId, int $storageId): int
+    public function getAllProductInStorage(int $productId, int $storageId): array
     {
-        return $this->repository->getQuantityProductInStorage($productId, $storageId);
+        return $this->repository->getAllProductStorage($productId, $storageId);
     }
 
 }
