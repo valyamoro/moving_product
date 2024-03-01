@@ -4,7 +4,7 @@ function fetchData(productData) {
 
     var xhr = new XMLHttpRequest();
     // Открываем соединение с сервером
-    xhr.open("GET", "../index.php?" + dataToSend, true);
+    xhr.open("GET", "../?" + dataToSend, true);
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {

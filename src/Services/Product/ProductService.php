@@ -10,12 +10,12 @@ use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    /**
-     * @throws ExceptionEmptyQuantityProduct
-     */
-    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): ProductStorage
+    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): ?ProductStorage
     {
         $productStorage = $this->getPastQuantityProductStorage($product, $productStorage);
+        if (\is_null($productStorage)) {
+            return null;
+        }
 
         $productStorage->setQuantityDifferenceInCurrentStorage($productStorage->getPastQuantityFromStorage() - $productStorage->getMoveQuantity());
         $productStorage->setQuantitySumInCurrentStorage($productStorage->getPastQuantityToStorage() + $productStorage->getPastQuantityFromStorage());
@@ -41,7 +41,7 @@ class ProductService extends BaseService
         return $this->repository->getById($id);
     }
 
-    public function getAllProductInStorage(int $productId, int $storageId): array
+    public function getAllProductStorage(int $productId, int $storageId): array
     {
         return $this->repository->getAllProductStorage($productId, $storageId);
     }

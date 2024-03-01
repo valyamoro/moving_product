@@ -14,46 +14,61 @@ class StorageService extends BaseService
         return $this->repository->getAll();
     }
 
-    public function moveProduct(Product $product, ProductStorage $productStorage): ?Product
+    public function moveProduct(Product $product, ProductStorage $productStorage): ?ProductStorage
     {
-        if ($productStorage->getIsAdd()) {
-            if ($productStorage->getPastQuantityFromStorage() <= $product->getQuantity()) {
-                $this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId());
+        if ($productStorage->getIsMoveProduct()) {
+            if ($productStorage->getQuantityCurrentInStorage() <= 0) {
+                if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
+                    $this->session->setFlash(['error' => 'Товар не удалился со старого склада!']);
+                    return null;
+                }
             } else {
-                $this->repository->updateProduct(
-                    $productStorage->getQuantityDifferenceInCurrentStorage(),
+                if (empty($this->repository->updateProduct(
+                    $productStorage->getQuantityCurrentInStorage(),
                     $product->getId(),
                     $productStorage->getFromStorageId(),
-                );
+                ))) {
+                    $this->session->setFlash(['error' => 'Количество товаров не обновилось на старом складе!']);
+                    return null;
+                }
             }
 
-            $result = $this->repository->updateProduct(
-                $productStorage->getQuantitySumInCurrentStorage(),
-                $product->getId(),
-                $productStorage->getToStorageId(),
-            );
-
-            // здесь необязательно.
-            return $result ? new Product(...$result) : null;
-        } else {
-            if ($productStorage->getQuantityCurrentIn() === 0) {
-                $this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId()); // переместить вверх
-            } else {
-                $this->repository->updateProduct(
-                    $productStorage->getQuantityCurrentIn(),
-                    $product->getId(),
-                    $productStorage->getFromStorageId(),
-                );
-            }
-
-            $result = $this->repository->addProduct(
+            if (empty($this->repository->addProduct(
                 $product->getId(),
                 $productStorage->getToStorageId(),
                 $productStorage->getMoveQuantity(),
-            );
+            ))) {
+                $this->session->setFlash(['error' => 'Товар не был перемещен!']);
+                return null;
+            }
+        } else {
+            if ($productStorage->getPastQuantityFromStorage() <= $product->getQuantity()) {
+                if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
+                    $this->session->setFlash(['error' => 'Товар не удалился со старого склада!']);
+                    return null;
+                }
+            } else {
+                if (empty($this->repository->updateProduct(
+                    $productStorage->getQuantityDifferenceInCurrentStorage(),
+                    $product->getId(),
+                    $productStorage->getFromStorageId(),
+                ))) {
+                    $this->session->setFlash(['error' => 'Количество товаров не обновилось на старом складе!']);
+                    return null;
+                }
+            }
 
-            return $result ? new Product(...$result) : null;
+            if (empty($this->repository->updateProduct(
+                $productStorage->getQuantitySumInCurrentStorage(),
+                $product->getId(),
+                $productStorage->getToStorageId(),
+            ))) {
+                $this->session->setFlash(['error' => 'Количество товаров не обновилось на новом складе!']);
+                return null;
+            }
         }
+
+        return $productStorage;
     }
 
     public function getAllHistoryAboutMovementProduct(Product $product): array
@@ -110,14 +125,16 @@ class StorageService extends BaseService
         return $this->repository->getById($id);
     }
 
-    public function saveHistory(int $productId, ProductStorage $productStorage): void
+    public function saveHistory(int $productId, ProductStorage $productStorage): bool
     {
-        $this->repository->saveHistory($productId, $productStorage);
+        if (!$this->repository->saveHistory($productId, $productStorage)) {
+            $this->session->setFlash(['error' => 'История о перемещении товара не была сохранена! Пожалуйста, обратитесь к администратору сайта']);
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    /**
-     * @throws ExceptionEmptyQuantityProduct
-     */
     public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): ProductStorage
     {
         return $this->getNowQuantityProductStorage($product, $productStorage);

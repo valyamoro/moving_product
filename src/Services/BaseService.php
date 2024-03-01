@@ -13,38 +13,31 @@ abstract class BaseService
     public function __construct(
         protected BaseRepository $repository,
         protected Session $session,
-    )
-    {
+    ) {
 
     }
 
-    /**
-     * @throws ExceptionEmptyQuantityProduct
-     */
     private function getQuantityProductFromAndToStorage(Product $product, ProductStorage $productStorage): array
     {
         $quantityProductFromStorage = $this->repository->getAllProductStorage(
             $product->getId(),
             $productStorage->getFromStorageId(),
         );
-        if (empty($quantityProductFromStorage['quantity'])) {
-            throw new ExceptionEmptyQuantityProduct("Склад с номером {$productStorage->getFromStorageId()} не найден");
+        if (empty($quantityProductFromStorage)) {
+            $quantityProductFromStorage['quantity'] = 0;
         }
 
         $quantityProductToStorage = $this->repository->getAllProductStorage(
             $product->getId(),
             $productStorage->getToStorageId(),
         );
-        if (empty($quantityProductToStorage['quantity'])) {
-            throw new ExceptionEmptyQuantityProduct("Склад с номером {$productStorage->getToStorageId()} не найден");
+        if (empty($quantityProductToStorage)) {
+            $quantityProductToStorage['quantity'] = 0;
         }
 
-        return ['from' => $quantityProductToStorage['quantity'], 'to' => $quantityProductToStorage['quantity']];
+        return ['from' => $quantityProductFromStorage['quantity'], 'to' => $quantityProductToStorage['quantity']];
     }
 
-    /**
-     * @throws ExceptionEmptyQuantityProduct
-     */
     protected function getNowQuantityProductStorage(Product $product, ProductStorage $productStorage): ProductStorage
     {
         $quantityProductInStorage = $this->getQuantityProductFromAndToStorage($product, $productStorage);
@@ -52,20 +45,19 @@ abstract class BaseService
         $productStorage->setNowQuantityFromStorage($quantityProductInStorage['from']);
         $productStorage->setNowQuantityToStorage($quantityProductInStorage['to']);
 
+
         return $productStorage;
     }
 
-    /**
-     * @throws ExceptionEmptyQuantityProduct
-     */
-    protected function getPastQuantityProductStorage(Product $product, ProductStorage $productStorage): ProductStorage
+    protected function getPastQuantityProductStorage(Product $product, ProductStorage $productStorage): ?ProductStorage
     {
         $quantityProductInStorage = $this->getQuantityProductFromAndToStorage($product, $productStorage);
+        if (!empty($quantityProductInStorage)) {
+            $productStorage->setPastQuantityFromStorage($quantityProductInStorage['from']);
+            $productStorage->setPastQuantityToStorage($quantityProductInStorage['to']);
+        }
 
-        $productStorage->setPastQuantityFromStorage($quantityProductInStorage['from']);
-        $productStorage->setPastQuantityToStorage($quantityProductInStorage['to']);
-
-        return $productStorage;
+        return !empty($quantityProductInStorage) ? $productStorage : null;
     }
 
 }

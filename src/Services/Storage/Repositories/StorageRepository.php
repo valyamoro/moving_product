@@ -81,12 +81,12 @@ class StorageRepository extends BaseRepository
 
         $this->connection->prepare($query)->execute([
             $productId,
-            $productStorage->getFromId(),
-            $productStorage->getToId(),
-            $productStorage->getPastQuantityFrom(),
-            $productStorage->getNowQuantityFrom(),
-            $productStorage->getPastQuantityTo(),
-            $productStorage->getNowQuantityTo(),
+            $productStorage->getFromStorageId(),
+            $productStorage->getToStorageId(),
+            $productStorage->getPastQuantityFromStorage(),
+            $productStorage->getNowQuantityFromStorage(),
+            $productStorage->getPastQuantityToStorage(),
+            $productStorage->getNowQuantityToStorage(),
             $productStorage->getMoveQuantity(),
         ]);
 
