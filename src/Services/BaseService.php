@@ -3,13 +3,17 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\core\Http\Session;
 use App\Exceptions\ExceptionEmptyQuantityProduct;
 use App\Models\Product;
 use App\Models\ProductStorage;
 
 abstract class BaseService
 {
-    public function __construct(protected BaseRepository $repository)
+    public function __construct(
+        protected BaseRepository $repository,
+        protected Session $session,
+    )
     {
 
     }

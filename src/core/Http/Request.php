@@ -27,7 +27,7 @@ final class Request
 
     public function isEmpty(mixed $name): bool
     {
-        return !isset($name);
+        return empty($name);
     }
 
 }
