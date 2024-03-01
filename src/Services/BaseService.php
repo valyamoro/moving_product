@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\core\Http\Session;
-use App\Exceptions\ExceptionEmptyQuantityProduct;
 use App\Models\Product;
 use App\Models\ProductStorage;
 
@@ -14,7 +13,6 @@ abstract class BaseService
         protected BaseRepository $repository,
         protected Session $session,
     ) {
-
     }
 
     private function getQuantityProductFromAndToStorage(Product $product, ProductStorage $productStorage): array
@@ -23,19 +21,15 @@ abstract class BaseService
             $product->getId(),
             $productStorage->getFromStorageId(),
         );
-        if (empty($quantityProductFromStorage)) {
-            $quantityProductFromStorage['quantity'] = 0;
-        }
+        $quantityProductFromStorage = $quantityProductFromStorage['quantity'] ?? 0;
 
         $quantityProductToStorage = $this->repository->getAllProductStorage(
             $product->getId(),
             $productStorage->getToStorageId(),
         );
-        if (empty($quantityProductToStorage)) {
-            $quantityProductToStorage['quantity'] = 0;
-        }
+        $quantityProductToStorage = $quantityProductToStorage['quantity'] ?? 0;
 
-        return ['from' => $quantityProductFromStorage['quantity'], 'to' => $quantityProductToStorage['quantity']];
+        return ['from' => $quantityProductFromStorage, 'to' => $quantityProductToStorage];
     }
 
     protected function getNowQuantityProductStorage(Product $product, ProductStorage $productStorage): ProductStorage

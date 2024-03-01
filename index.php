@@ -49,13 +49,13 @@ if ($request->isMethod('POST')) {
     } else {
         $productData = $productService->getById($data['product_id']);
         $product = new \App\Models\Product(
-            $productData['id'],
             $productData['title'],
             $productData['price'],
             (int)$productData['quantity'],
             $productData['created_at'],
             $productData['updated_at'],
         );
+        $product->setId($productData['id']);
 
         $productStorage = new \App\Models\ProductStorage(
             $data['from_storage_id'],
@@ -93,21 +93,21 @@ $historyMovementProducts = [];
 $data = $productService->getAll();
 foreach ($data as $value) {
     $product = new \App\Models\Product(
-        (int)$value['id'],
         $value['title'],
         (int)$value['price'],
         (int)$value['quantity'],
         $value['created_at'],
         $value['updated_at'],
     );
+    $product->setId($value['id']);
 
     $storage = new App\Models\Storage(
-        (int)$value['storage_id'],
         $value['name'],
         $value['storage_created'],
         $value['storage_updated'],
     );
 
+    $storage->setId($value['storage_id']);
     $storage->setProduct($product);
     $storages[] = $storage;
 
@@ -116,9 +116,8 @@ foreach ($data as $value) {
 
 $historyMovementProducts = $storageService->deleteDuplicates($historyMovementProducts, 'product_id');
 ?>
-<?php //if (!$request->isEmpty($request->getMethod())): ?>
-<?php if (!empty($_GET['from_storage_id']) && !empty($_GET['product_id'])): ?>
-    <form id="myForm" action="index.php" method="POST">
+<?php if ($request->getMethod('product_id')): ?>
+    <form id="myForm" action="" method="POST">
         <div class="modal-body">
             Вы перемещаете продукт с айди: <?php echo $request->getMethod('product_id'); ?><br>
             Со склада с айди: <?php echo $request->getMethod('from_storage_id'); ?> <br>

@@ -12,7 +12,7 @@ final class Request
 
     public function getMethod(?string $name = null): mixed
     {
-        return !$this->isEmpty($name) ? $_REQUEST[$name] : $_REQUEST;
+        return !$this->isEmpty($name) ? $_REQUEST[$name] ?? null : $_REQUEST;
     }
 
     public function getFiles(string $name = ''): array
@@ -20,14 +20,14 @@ final class Request
         return !$this->isFiles($name) ? $_FILES[$name] : $_FILES;
     }
 
-    public function isFiles(): bool
+    public function isFiles(string $name): bool
     {
-        return $this->isEmpty($_FILES);
+        return $this->isEmpty($_FILES[$name]);
     }
 
     public function isEmpty(mixed $name): bool
     {
-        return empty($name);
+        return !isset($name);
     }
 
 }

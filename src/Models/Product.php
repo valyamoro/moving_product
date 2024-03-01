@@ -7,14 +7,20 @@ use App\core\Model;
 
 class Product extends Model
 {
+    private int $id;
+
     public function __construct(
-        private readonly int $id,
         private readonly string $title,
         private readonly int $price,
         private readonly int $quantity,
         private readonly string $createdAt,
         private readonly string $updatedAt,
     ) {
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     public function getPrice(): int
@@ -37,14 +43,14 @@ class Product extends Model
         return $this->title;
     }
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
     public function getQuantity(): int
     {
         return $this->quantity;
+    }
+
+    public function setId(int $value): void
+    {
+        $this->id = $value;
     }
 
 }
