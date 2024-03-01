@@ -35,10 +35,8 @@ abstract class BaseService
     protected function getNowQuantityProductStorage(Product $product, ProductStorage $productStorage): ProductStorage
     {
         $quantityProductInStorage = $this->getQuantityProductFromAndToStorage($product, $productStorage);
-
         $productStorage->setNowQuantityFromStorage($quantityProductInStorage['from']);
         $productStorage->setNowQuantityToStorage($quantityProductInStorage['to']);
-
 
         return $productStorage;
     }

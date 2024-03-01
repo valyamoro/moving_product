@@ -71,42 +71,23 @@ class StorageService extends BaseService
         return $productStorage;
     }
 
-    public function getAllHistoryAboutMovementProduct(Product $product): array
+    public function getAllHistoryAboutMovementProduct(int $productId): array
     {
         $result = [];
 
-        $string = '';
-        $historyMoves = $this->repository->getHistoryAboutMovementProduct($product->getId());
-
-        foreach ($historyMoves as $value) {
-            if ($value['product_id'] === $product->getId()) {
-                $string .= $this->getStringProductInfo($product, $value);
-            }
-
-            if (!empty($string)) {
-                $result = ['product_id' => $product->getId(), 'description' => $string];
+        $data = $this->repository->getHistoryAboutMovementProduct($productId);
+        foreach ($data as $value) {
+            if ($value['product_id'] === $productId) {
+                $result[] = $value;
             }
         }
 
         return $result;
     }
 
-    public function deleteDuplicates(array $data, string $key): array
+    private function getById(int $id): array
     {
-        $uniqueIds = [];
-
-        return \array_filter($data, function ($item) use (&$uniqueIds, $key) {
-            if (is_array($item)) {
-                if (!isset($item[$key])) {
-                    return false;
-                }
-                if (!\in_array($item[$key], $uniqueIds)) {
-                    $uniqueIds[] = $item[$key];
-                    return true;
-                }
-            }
-            return false;
-        });
+        return $this->repository->getById($id);
     }
 
     public function getStringProductInfo(Product $product, array $data): string
@@ -118,11 +99,6 @@ class StorageService extends BaseService
         перемещено {$data['move_quantity']} стало {$data['now_quantity_to_storage']} {$data['created_at']}";
 
         return $string;
-    }
-
-    private function getById(int $id): array
-    {
-        return $this->repository->getById($id);
     }
 
     public function saveHistory(int $productId, ProductStorage $productStorage): bool
