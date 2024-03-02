@@ -24,7 +24,7 @@ $productService = new \App\Services\Product\ProductService($productRepository, $
 $storageRepository = new \App\Services\Storage\Repositories\StorageRepository($pdoDriver);
 $storageService = new \App\Services\Storage\StorageService($storageRepository, $session);
 
-if ($request->getMethod('quantity')) {
+if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id') && $request->getMethod('product_id')) {
     $data = [];
     foreach ($_POST as $key => $value) {
         $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
@@ -40,7 +40,7 @@ if ($request->getMethod('quantity')) {
     $productStorageData = $productService->getAllProductStorage($data['product_id'], $data['from_storage_id']);
     $productValidator = new \App\Validations\ProductValidator(
         $data['move_quantity'],
-        $productStorageData['quantity'],
+        $productStorageData['quantity'] ?? 0,
         ['from' => $data['from_storage_id'], 'to' => $data['to_storage_id']],
     );
 
@@ -64,10 +64,10 @@ if ($request->getMethod('quantity')) {
         );
         $productStorage = $productService->getAllAboutProduct($product, $productStorage);
         if (\is_null($productStorage)) {
-            $session->setFlash(['error' => 'Что-то пошло не так, пожалуйста обратитесь к администратору сайта.']);
+            $session->setFlash(['error' => '500 | Что-то пошло не так, пожалуйста обратитесь к администратору сайта.']);
         } else {
-            $productStorage = $storageService->moveProduct($product, $productStorage);
-            if (!\is_null($productStorage)) {
+            $isMoveProduct = $storageService->moveProduct($product, $productStorage);
+            if ($isMoveProduct) {
                 $productStorage = $storageService->getInfoAboutProductMovement($product, $productStorage);
                 if ($storageService->saveHistory($product->getId(), $productStorage)) {
                     $msg = "Вы успешно переместили продукт с номером {$data['product_id']} со склада под номером {$data['from_storage_id']}
@@ -75,14 +75,12 @@ if ($request->getMethod('quantity')) {
                     $session->setFlash(['success' => $msg]);
                 } else {
                     $this->session->setFlash(['error' => 'История о перемещении товара не была сохранена! Пожалуйста, обратитесь к администратору сайта']);
-                    return false;
                 }
             }
+
         }
     }
 
-    \header('Location: /');
-    die;
 }
 
 $products = [];
@@ -157,6 +155,8 @@ foreach ($historyMovementProducts as $key => $history) {
         $productStorages[$key][] = $productStorage;
     }
 }
+$storagesCollection = [];
+
 foreach ($storagesList as $storageList) {
     $storage = \App\Factory\StorageFactory::create([
         'name' => $storageList['name'],
@@ -168,9 +168,25 @@ foreach ($storagesList as $storageList) {
     $storagesCollection[] = $storage;
 }
 
-
 ?>
-<?php if ($request->getMethod('product_id') && $request->getMethod('from_storage_id')): ?>
+<?php if (!empty($session->getFlash()['validate_errors'])): ?>
+    <?php foreach ($session->getFlash()['validate_errors'] as $error): ?>
+        <?php echo \nl2br($error) . '<br>'; ?>
+    <?php endforeach; ?>
+    <?php $session->delete('validate_errors'); ?>
+    <br>
+<?php endif; ?>
+<?php if (!empty($session->getFlash()['success'])): ?>
+    <?php echo \nl2br($session->getFlash()['success']) . '<br>'; ?>
+    <?php $session->delete('success'); ?>
+    <br>
+<?php endif; ?>
+<?php if (!empty($session->getFlash()['error'])): ?>
+    <?php echo \nl2br($session->getFlash()['error']) . '<br>'; ?>
+    <?php $session->delete('error'); ?>
+    <br>
+<?php endif; ?>
+<?php if ($request->getMethod('product_id') && $request->getMethod('from_storage_id') && \is_null($request->getMethod('quantity'))): ?>
     <form id="myForm" action="" method="POST">
         <div class="modal-body">
             Вы перемещаете продукт с айди: <?php echo $request->getMethod('product_id'); ?><br>
@@ -201,23 +217,6 @@ foreach ($storagesList as $storageList) {
         });
     </script>
 <?php else: ?>
-<?php if (!empty($session->getFlash()['validate_errors'])): ?>
-    <?php foreach ($session->getFlash()['validate_errors'] as $error): ?>
-        <?php echo \nl2br($error) . '<br>'; ?>
-    <?php endforeach; ?>
-    <?php unset($session->getFlash()['validate_errors']); ?>
-    <br>
-<?php endif; ?>
-<?php if (!empty($session->getFlash()['success'])): ?>
-    <?php echo \nl2br($session->getFlash()['success']) . '<br>'; ?>
-    <?php unset($session->getFlash()['success']); ?>
-    <br>
-<?php endif; ?>
-<?php if (!empty($session->getFlash()['error'])): ?>
-    <?php echo \nl2br($session->getFlash()['error']) . '<br>'; ?>
-    <?php unset($session->getFlash()['error']); ?>
-    <br>
-<?php endif; ?>
 <!doctype html>
 <html lang="ru">
 <head>

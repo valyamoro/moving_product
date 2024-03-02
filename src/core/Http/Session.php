@@ -38,7 +38,7 @@ final class Session
         return $this->messages;
     }
 
-    public function setFlash(?array $messages, bool $isSession = false): void
+    public function setFlash(array $messages, bool $isSession = false): void
     {
         $this->messages = $messages;
 

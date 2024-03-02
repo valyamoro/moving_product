@@ -14,13 +14,13 @@ class StorageService extends BaseService
         return $this->repository->getAll();
     }
 
-    public function moveProduct(Product $product, ProductStorage $productStorage): ?ProductStorage
+    public function moveProduct(Product $product, ProductStorage $productStorage): bool
     {
         if ($productStorage->getIsMoveProduct()) {
             if ($productStorage->getQuantityCurrentInStorage() <= 0) {
                 if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
                     $this->session->setFlash(['error' => 'Товар не удалился со старого склада!']);
-                    return null;
+                    return false;
                 }
             } else {
                 if (empty($this->repository->updateProduct(
@@ -29,7 +29,7 @@ class StorageService extends BaseService
                     $productStorage->getFromStorageId(),
                 ))) {
                     $this->session->setFlash(['error' => 'Количество товаров не обновилось на старом складе!']);
-                    return null;
+                    return false;
                 }
             }
 
@@ -39,13 +39,13 @@ class StorageService extends BaseService
                 $productStorage->getMoveQuantity(),
             ))) {
                 $this->session->setFlash(['error' => 'Товар не был перемещен!']);
-                return null;
+                return false;
             }
         } else {
             if ($productStorage->getPastQuantityFromStorage() <= $product->getQuantity()) {
                 if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
                     $this->session->setFlash(['error' => 'Товар не удалился со старого склада!']);
-                    return null;
+                    return false;
                 }
             } else {
                 if (empty($this->repository->updateProduct(
@@ -54,7 +54,7 @@ class StorageService extends BaseService
                     $productStorage->getFromStorageId(),
                 ))) {
                     $this->session->setFlash(['error' => 'Количество товаров не обновилось на старом складе!']);
-                    return null;
+                    return false;
                 }
             }
 
@@ -64,11 +64,11 @@ class StorageService extends BaseService
                 $productStorage->getToStorageId(),
             ))) {
                 $this->session->setFlash(['error' => 'Количество товаров не обновилось на новом складе!']);
-                return null;
+                return false;
             }
         }
 
-        return $productStorage;
+        return true;
     }
 
     public function getAllHistoryAboutMovementProduct(int $productId): array

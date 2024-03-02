@@ -3,7 +3,6 @@ function fetchData(productData) {
     var dataToSend = "product_id=" + encodeURIComponent(productData.productId) + "&from_storage_id=" + encodeURIComponent(productData.fromStorageId);
 
     var xhr = new XMLHttpRequest();
-    // Открываем соединение с сервером
     xhr.open("GET", "../?" + dataToSend, true);
 
     xhr.onreadystatechange = function() {
