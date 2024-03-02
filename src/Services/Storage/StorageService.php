@@ -85,11 +85,6 @@ class StorageService extends BaseService
         return $result;
     }
 
-    private function getById(int $id): array
-    {
-        return $this->repository->getById($id);
-    }
-
     public function saveHistory(int $productId, ProductStorage $productStorage): bool
     {
         return $this->repository->saveHistory($productId, $productStorage);

@@ -25,8 +25,8 @@ $storageRepository = new \App\Services\Storage\Repositories\StorageRepository($p
 $storageService = new \App\Services\Storage\StorageService($storageRepository, $session);
 
 if ($request->getMethod('quantity')) {
-    $data = $request->getMethod();
-    foreach ($data as $key => $value) {
+    $data = [];
+    foreach ($_POST as $key => $value) {
         $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
     }
 
@@ -48,13 +48,13 @@ if ($request->getMethod('quantity')) {
         $session->setFlash(['validate_errors' => $productValidator->getErrors()]);
     } else {
         $productData = $productService->getById($data['product_id']);
-        $product = new \App\Models\Product(
-            $productData['title'],
-            $productData['price'],
-            (int)$productData['quantity'],
-            $productData['created_at'],
-            $productData['updated_at'],
-        );
+        $product = \App\Factory\ProductFactory::create([
+            'title' => $productData['title'],
+            'price' => $productData['price'],
+            'quantity' => $productData['quantity'],
+            'created_at' => $productData['created_at'],
+            'updated_at' => $productData['updated_at'],
+        ]);
         $product->setId($productData['id']);
 
         $productStorage = new \App\Models\ProductStorage(
@@ -62,7 +62,6 @@ if ($request->getMethod('quantity')) {
             $data['to_storage_id'],
             $data['move_quantity'],
         );
-
         $productStorage = $productService->getAllAboutProduct($product, $productStorage);
         if (\is_null($productStorage)) {
             $session->setFlash(['error' => 'Что-то пошло не так, пожалуйста обратитесь к администратору сайта.']);
@@ -91,21 +90,20 @@ $storages = [];
 $historyMovementProducts = [];
 $data = $productService->getAll();
 foreach ($data as $value) {
-    $product = new \App\Models\Product(
-        $value['title'],
-        (int)$value['price'],
-        (int)$value['quantity'],
-        $value['created_at'],
-        $value['updated_at'],
-    );
+    $product = \App\Factory\ProductFactory::create([
+        'title' => $value['title'],
+        'price' => $value['price'],
+        'quantity' => $value['quantity'],
+        'created_at' => $value['created_at'],
+        'updated_at' => $value['updated_at'],
+    ]);
     $product->setId($value['id']);
     $products[] = $product;
-    $storage = new App\Models\Storage(
-        $value['name'],
-        $value['storage_created'],
-        $value['storage_updated'],
-    );
-
+    $storage = \App\Factory\StorageFactory::create([
+        'name' => $value['name'],
+        'created_at' => $value['storage_created'],
+        'updated_at' => $value['storage_updated'],
+    ]);
     $storage->setId($value['storage_id']);
     $storage->setProduct($product);
     $storages[] = $storage;
@@ -113,18 +111,16 @@ foreach ($data as $value) {
     $historyMovementProducts[$product->getId()] = $storageService->getAllHistoryAboutMovementProduct($product->getId());
 }
 
-
 $storagesList = $storageService->getAll();
-$productStorages = [];
 
+$productStorages = [];
 foreach ($historyMovementProducts as $key => $history) {
     foreach ($history as $value) {
         $productStorage = new \App\Models\ProductStorage(
-            $value['from_storage_id'],
-            $value['to_storage_id'],
-            $value['move_quantity'],
+            (int)$value['from_storage_id'],
+            (int)$value['to_storage_id'],
+            (int)$value['move_quantity'],
         );
-
         $productStorage->setNowQuantityToStorage($value['now_quantity_to_storage']);
         $productStorage->setPastQuantityToStorage($value['past_quantity_from_storage']);
         $productStorage->setPastQuantityToStorage($value['past_quantity_to_storage']);
@@ -140,12 +136,11 @@ foreach ($historyMovementProducts as $key => $history) {
 
         $collectionStorages = [];
         foreach ($storagesList as $storageData) {
-            $storage = new App\Models\Storage(
-                $storageData['name'],
-                $value['created_at'],
-                $value['updated_at'],
-            );
-
+            $storage = \App\Factory\StorageFactory::create([
+                'name' => $storageData['name'],
+                'created_at' => $value['created_at'],
+                'updated_at' => $value['updated_at'],
+            ]);
             $storage->setId($storageData['id']);
             $collectionStorages[] = $storage;
         }
@@ -162,6 +157,16 @@ foreach ($historyMovementProducts as $key => $history) {
         $productStorages[$key][] = $productStorage;
     }
 }
+foreach ($storagesList as $storageList) {
+    $storage = \App\Factory\StorageFactory::create([
+        'name' => $storageList['name'],
+        'created_at' => $storageList['created_at'],
+        'updated_at' => $storageList['updated_at'],
+    ]);
+    $storage->setId($storageList['id']);
+
+    $storagesCollection[] = $storage;
+}
 
 
 ?>
@@ -172,9 +177,9 @@ foreach ($historyMovementProducts as $key => $history) {
             Со склада с айди: <?php echo $request->getMethod('from_storage_id'); ?> <br>
             На склад: <br>
             <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
-                <?php foreach ($storagesList as $value): ?>
-                    <option value="<?php echo $value['id'] ?>">
-                        <?php echo $value['name'] ?>
+                <?php foreach ($storagesCollection as $value): ?>
+                    <option value="<?php echo $value->getId() ?>">
+                        <?php echo $value->getName() ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -282,7 +287,7 @@ foreach ($historyMovementProducts as $key => $history) {
         <?php foreach ($productStorage as $value): ?>
             <tr>
                 <td><?php echo $key ?></td>
-                <td><?php echo "{$value->getFromStorage()->getName()} {$value->getProduct()->getTitle()} был {$value->getPastQuantityFromStorage()}
+                <td><?php echo "{$value->getFromStorage()->getName()} {$value->getProduct()->getTitle()} было {$value->getPastQuantityFromStorage()}
                     стало {$value->getNowQuantityFromStorage()} | {$value->getFromStorage()->getCreatedAt()}<br>
                    {$value->getToStorage()->getName()} {$value->getProduct()->getTitle()} было {$value->getPastQuantityToStorage()}
                     перемещено {$value->getMoveQuantity()} стало {$value->getNowQuantityToStorage()} | {$value->getToStorage()->getCreatedAt()}"; ?></td>

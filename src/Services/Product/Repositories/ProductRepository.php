@@ -16,6 +16,7 @@ class ProductRepository extends BaseRepository
           JOIN products AS p ON ps.product_id = p.id
           JOIN storages AS s ON ps.storage_id = s.id
           order by id asc';
+
         $this->connection->prepare($query)->execute();
 
         return $this->connection->fetchAll();
