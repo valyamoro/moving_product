@@ -9,6 +9,70 @@ use App\Services\BaseService;
 
 class StorageService extends BaseService
 {
+    public function addProductInStorage(array $storages, array $products): array
+    {
+        foreach ($storages as $storage) {
+            foreach ($products as $key => $product) {
+                unset($products[$key]);
+                $storage->setProduct($product);
+                break;
+            }
+        }
+
+        return $storages;
+    }
+
+    public function getProductStoragesCollection(array $data, array $products): array
+    {
+        $storagesList = $this->getAll();
+        $productStorages = [];
+        foreach ($data as $key => $historyMovementProduct) {
+            foreach ($historyMovementProduct as $value) {
+                $productStorage = new \App\Models\ProductStorage(
+                    (int)$value['from_storage_id'],
+                    (int)$value['to_storage_id'],
+                    (int)$value['move_quantity'],
+                );
+                $productStorage->setNowQuantityToStorage($value['now_quantity_to_storage']);
+                $productStorage->setPastQuantityToStorage($value['past_quantity_from_storage']);
+                $productStorage->setPastQuantityToStorage($value['past_quantity_to_storage']);
+                $productStorage->setNowQuantityToStorage($value['now_quantity_to_storage']);
+                $productStorage->setPastQuantityFromStorage($value['past_quantity_from_storage']);
+                $productStorage->setNowQuantityFromStorage($value['now_quantity_from_storage']);
+
+                foreach ($products as $product) {
+                    if ($product->getId() === $key) {
+                        $productStorage->setProduct($product);
+                    }
+                }
+
+                $collectionStorages = [];
+                foreach ($storagesList as $storageData) {
+                    $storage = \App\Factory\StorageFactory::create([
+                        'name' => $storageData['name'],
+                    ]);
+                    $storage->setCreatedAt($value['created_at']);
+                    $storage->setUpdatedAt($value['updated_at']);
+                    $storage->setId($storageData['storage_id']);
+                    $collectionStorages[] = $storage;
+                }
+
+                foreach ($collectionStorages as $storage) {
+                    if ($storage->getId() === $value['to_storage_id']) {
+                        $productStorage->setToStorage($storage);
+                    }
+                    if ($storage->getId() === $value['from_storage_id']) {
+                        $productStorage->setFromStorage($storage);
+                    }
+                }
+
+                $productStorages[$key][] = $productStorage;
+            }
+        }
+
+        return $productStorages;
+    }
+
     public function getMovementProducts(array $productsCollections): array
     {
         $result = [];
@@ -34,8 +98,12 @@ class StorageService extends BaseService
         return $result;
     }
 
-    public function getStoragesCollection(array $data): array
+    public function getCollection(array $data = []): array
     {
+        if (empty($data)) {
+            $data = $this->repository->getAll();
+        }
+
         $result = [];
 
         foreach ($data as $value) {

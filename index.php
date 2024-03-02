@@ -81,74 +81,15 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
     }
 }
 
-$data = $productService->getAll();
-$products = $productService->getProductsCollection($data);
+$data = $productService->getAllAboutMovementProducts();
+$products = $productService->getCollection($data);
 $historyMovementProducts = $storageService->getMovementProducts($products);
 $productsCollection = $products;
-$storages = $storageService->getStoragesCollection($data);
-foreach ($storages as $storage) {
-    foreach ($productsCollection as $key => $product) {
-        unset($productsCollection[$key]);
-        $storage->setProduct($product);
-        break;
-    }
-}
+$storages = $storageService->getCollection($data);
+$storages = $storageService->addProductInStorage($storages, $productsCollection);
 
-$storagesList = $storageService->getAll();
-$productStorages = [];
-foreach ($historyMovementProducts as $key => $historyMovementProduct) {
-    foreach ($historyMovementProduct as $value) {
-        $productStorage = new \App\Models\ProductStorage(
-            (int)$value['from_storage_id'],
-            (int)$value['to_storage_id'],
-            (int)$value['move_quantity'],
-        );
-        $productStorage->setNowQuantityToStorage($value['now_quantity_to_storage']);
-        $productStorage->setPastQuantityToStorage($value['past_quantity_from_storage']);
-        $productStorage->setPastQuantityToStorage($value['past_quantity_to_storage']);
-        $productStorage->setNowQuantityToStorage($value['now_quantity_to_storage']);
-        $productStorage->setPastQuantityFromStorage($value['past_quantity_from_storage']);
-        $productStorage->setNowQuantityFromStorage($value['now_quantity_from_storage']);
-
-        foreach ($products as $product) {
-            if ($product->getId() === $key) {
-                $productStorage->setProduct($product);
-            }
-        }
-
-        $collectionStorages = [];
-        foreach ($storagesList as $storageData) {
-            $storage = \App\Factory\StorageFactory::create([
-                'name' => $storageData['name'],
-            ]);
-            $storage->setCreatedAt($value['created_at']);
-            $storage->setUpdatedAt($value['updated_at']);
-            $storage->setId($storageData['id']);
-            $collectionStorages[] = $storage;
-        }
-
-        foreach ($collectionStorages as $storage) {
-            if ($storage->getId() === $value['to_storage_id']) {
-                $productStorage->setToStorage($storage);
-            }
-            if ($storage->getId() === $value['from_storage_id']) {
-                $productStorage->setFromStorage($storage);
-            }
-        }
-
-        $productStorages[$key][] = $productStorage;
-    }
-}
-
-$storagesCollection = [];
-foreach ($storagesList as $storageList) {
-    $storage = \App\Factory\StorageFactory::create([
-        'name' => $storageList['name'],
-    ]);
-    $storage->setId($storageList['id']);
-
-    $storagesCollection[] = $storage;
-}
+$productStorages = $storageService->getProductStoragesCollection($historyMovementProducts, $products);
+$storagesCollection = $storageService->getCollection();
 
 ?>
 <?php if (!empty($session->getFlash()['validate_errors'])): ?>

@@ -54,7 +54,7 @@ class StorageRepository extends BaseRepository
 
     public function getAll(): array
     {
-        $query = 'select * from storages';
+        $query = 'select id as storage_id, name, created_at, updated_at from storages';
 
         $this->connection->prepare($query)->execute();
 

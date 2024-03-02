@@ -10,8 +10,11 @@ use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    public function getProductsCollection(array $data): array
+    public function getCollection(array $data = []): array
     {
+        if (!empty($data)) {
+            $data = $this->repository->getAll();
+        }
         $result = [];
 
         foreach ($data as $value) {
@@ -48,9 +51,9 @@ class ProductService extends BaseService
         return $productStorage;
     }
 
-    public function getAll(): array
+    public function getAllAboutMovementProducts(): array
     {
-        return $this->repository->getAll();
+        return $this->repository->getAllAboutMovementProducts();
     }
 
     public function getById(int $id): array
