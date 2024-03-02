@@ -10,6 +10,23 @@ use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
+    public function getProductsCollection(array $data): array
+    {
+        $result = [];
+
+        foreach ($data as $value) {
+            $product = \App\Factory\ProductFactory::create([
+                'title' => $value['title'],
+                'price' => $value['price'],
+                'quantity' => $value['quantity'],
+            ]);
+            $product->setId($value['id']);
+
+            $result[] = $product;
+        }
+
+        return $result;
+    }
     public function getAllAboutProduct(Product $product, ProductStorage $productStorage): ProductStorage
     {
         $productStorage = $this->getPastQuantityProductStorage($product, $productStorage);

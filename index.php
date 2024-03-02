@@ -66,8 +66,8 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
         if ($productStorage->getPastQuantityFromStorage() === 0) {
             $session->setFlash(['error' => 'На этом складе нету этого товара! Пожалуйста выберите другой склад.']);
         } else {
-            $isMoveProduct = $storageService->moveProduct($product, $productStorage);
-            if ($isMoveProduct) {
+            $isMovedProduct = $storageService->moveProduct($product, $productStorage);
+            if ($isMovedProduct) {
                 $productStorage = $storageService->getInfoAboutProductMovement($product, $productStorage);
                 if ($storageService->saveHistory($product->getId(), $productStorage)) {
                     $msg = "Вы успешно переместили продукт с номером {$data['product_id']} со склада под номером {$data['from_storage_id']}
@@ -81,36 +81,23 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
     }
 }
 
-$products = [];
-$storages = [];
-$historyMovementProducts = [];
-// ПРОДУКТЫ И СКЛАДЫ $storages
 $data = $productService->getAll();
-foreach ($data as $value) {
-    $product = \App\Factory\ProductFactory::create([
-        'title' => $value['title'],
-        'price' => $value['price'],
-        'quantity' => $value['quantity'],
-    ]);
-    $product->setId($value['id']);
-    $products[] = $product;
-    $storage = \App\Factory\StorageFactory::create([
-        'name' => $value['name'],
-    ]);
-    $storage->setId($value['storage_id']);
-    $storage->setProduct($product);
-    $storages[] = $storage;
-
-    $historyMovementProducts[$product->getId()] = $storageService->getAllHistoryAboutMovementProduct($product->getId());
+$products = $productService->getProductsCollection($data);
+$historyMovementProducts = $storageService->getMovementProducts($products);
+$productsCollection = $products;
+$storages = $storageService->getStoragesCollection($data);
+foreach ($storages as $storage) {
+    foreach ($productsCollection as $key => $product) {
+        unset($productsCollection[$key]);
+        $storage->setProduct($product);
+        break;
+    }
 }
 
-
 $storagesList = $storageService->getAll();
-
-// ИСТОРИЯ ПЕРЕМЕЩЕНИЙ $productStorages
 $productStorages = [];
-foreach ($historyMovementProducts as $key => $history) {
-    foreach ($history as $value) {
+foreach ($historyMovementProducts as $key => $historyMovementProduct) {
+    foreach ($historyMovementProduct as $value) {
         $productStorage = new \App\Models\ProductStorage(
             (int)$value['from_storage_id'],
             (int)$value['to_storage_id'],
@@ -133,8 +120,6 @@ foreach ($historyMovementProducts as $key => $history) {
         foreach ($storagesList as $storageData) {
             $storage = \App\Factory\StorageFactory::create([
                 'name' => $storageData['name'],
-                'created_at' => $value['created_at'],
-                'updated_at' => $value['updated_at'],
             ]);
             $storage->setCreatedAt($value['created_at']);
             $storage->setUpdatedAt($value['updated_at']);
@@ -156,7 +141,6 @@ foreach ($historyMovementProducts as $key => $history) {
 }
 
 $storagesCollection = [];
-// КОЛЛЕКЦИЯ СКЛАДОВ. $storagesCollection
 foreach ($storagesList as $storageList) {
     $storage = \App\Factory\StorageFactory::create([
         'name' => $storageList['name'],

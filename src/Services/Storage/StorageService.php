@@ -1,14 +1,54 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Services\Storage;
 
-use App\Exceptions\ExceptionEmptyQuantityProduct;
 use App\Models\Product;
 use App\Models\ProductStorage;
 use App\Services\BaseService;
 
 class StorageService extends BaseService
 {
+    public function getMovementProducts(array $productsCollections): array
+    {
+        $result = [];
+
+        foreach ($productsCollections as $value) {
+            $result[$value->getId()] = $this->getMovementProduct($value->getId());
+        }
+
+        return $result;
+    }
+
+    private function getMovementProduct(int $productId): array
+    {
+        $result = [];
+
+        $data = $this->repository->getHistoryAboutMovementProduct($productId);
+        foreach ($data as $value) {
+            if ($value['product_id'] === $productId) {
+                $result[] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    public function getStoragesCollection(array $data): array
+    {
+        $result = [];
+
+        foreach ($data as $value) {
+            $storage = \App\Factory\StorageFactory::create([
+                'name' => $value['name'],
+            ]);
+            $storage->setId($value['storage_id']);
+
+            $result[] = $storage;
+        }
+
+        return $result;
+    }
     public function getAll(): array
     {
         return $this->repository->getAll();
@@ -69,20 +109,6 @@ class StorageService extends BaseService
         }
 
         return true;
-    }
-
-    public function getAllHistoryAboutMovementProduct(int $productId): array
-    {
-        $result = [];
-
-        $data = $this->repository->getHistoryAboutMovementProduct($productId);
-        foreach ($data as $value) {
-            if ($value['product_id'] === $productId) {
-                $result[] = $value;
-            }
-        }
-
-        return $result;
     }
 
     public function saveHistory(int $productId, ProductStorage $productStorage): bool

@@ -15,7 +15,7 @@ class ProductRepository extends BaseRepository
           FROM product_storage AS ps
           JOIN products AS p ON ps.product_id = p.id
           JOIN storages AS s ON ps.storage_id = s.id
-          order by id asc';
+          order by id asc, ps.storage_id asc';
 
         $this->connection->prepare($query)->execute();
 
