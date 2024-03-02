@@ -24,7 +24,7 @@ $productService = new \App\Services\Product\ProductService($productRepository, $
 $storageRepository = new \App\Services\Storage\Repositories\StorageRepository($pdoDriver);
 $storageService = new \App\Services\Storage\StorageService($storageRepository, $session);
 
-if ($request->isMethod('POST')) {
+if ($request->getMethod('quantity')) {
     $data = $request->getMethod();
     foreach ($data as $key => $value) {
         $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
@@ -74,21 +74,21 @@ if ($request->isMethod('POST')) {
                     $msg = "Вы успешно переместили продукт с номером {$data['product_id']} со склада под номером {$data['from_storage_id']}
                     на склад под номером {$data['to_storage_id']} в количестве {$data['move_quantity']} штук.";
                     $session->setFlash(['success' => $msg]);
+                } else {
+                    $this->session->setFlash(['error' => 'История о перемещении товара не была сохранена! Пожалуйста, обратитесь к администратору сайта']);
+                    return false;
                 }
             }
-
-            \header('Location: /');
-            die;
         }
     }
-}
 
-$storagesList = $storageService->getAll();
+    \header('Location: /');
+    die;
+}
 
 $products = [];
 $storages = [];
 $historyMovementProducts = [];
-
 $data = $productService->getAll();
 foreach ($data as $value) {
     $product = new \App\Models\Product(
@@ -99,7 +99,7 @@ foreach ($data as $value) {
         $value['updated_at'],
     );
     $product->setId($value['id']);
-
+    $products[] = $product;
     $storage = new App\Models\Storage(
         $value['name'],
         $value['storage_created'],
@@ -113,6 +113,8 @@ foreach ($data as $value) {
     $historyMovementProducts[$product->getId()] = $storageService->getAllHistoryAboutMovementProduct($product->getId());
 }
 
+
+$storagesList = $storageService->getAll();
 $productStorages = [];
 
 foreach ($historyMovementProducts as $key => $history) {
@@ -130,13 +132,40 @@ foreach ($historyMovementProducts as $key => $history) {
         $productStorage->setPastQuantityFromStorage($value['past_quantity_from_storage']);
         $productStorage->setNowQuantityFromStorage($value['now_quantity_from_storage']);
 
+        foreach ($products as $product) {
+            if ($product->getId() === $key) {
+                $productStorage->setProduct($product);
+            }
+        }
+
+        $collectionStorages = [];
+        foreach ($storagesList as $storageData) {
+            $storage = new App\Models\Storage(
+                $storageData['name'],
+                $value['created_at'],
+                $value['updated_at'],
+            );
+
+            $storage->setId($storageData['id']);
+            $collectionStorages[] = $storage;
+        }
+
+        foreach ($collectionStorages as $storage) {
+            if ($storage->getId() === $value['to_storage_id']) {
+                $productStorage->setToStorage($storage);
+            }
+            if ($storage->getId() === $value['from_storage_id']) {
+                $productStorage->setFromStorage($storage);
+            }
+        }
+
         $productStorages[$key][] = $productStorage;
     }
 }
 
 
 ?>
-<?php if ($request->getMethod('product_id')): ?>
+<?php if ($request->getMethod('product_id') && $request->getMethod('from_storage_id')): ?>
     <form id="myForm" action="" method="POST">
         <div class="modal-body">
             Вы перемещаете продукт с айди: <?php echo $request->getMethod('product_id'); ?><br>
@@ -249,15 +278,14 @@ foreach ($historyMovementProducts as $key => $history) {
     </tr>
     </thead>
     <tbody>
-
     <?php foreach ($productStorages as $key => $productStorage): ?>
         <?php foreach ($productStorage as $value): ?>
             <tr>
                 <td><?php echo $key ?></td>
-                <td><?php echo " был {$value->getPastQuantityFromStorage()}
-                    стало {$value->getNowQuantityFromStorage()}<br>
-                   | было {$value->getPastQuantityToStorage()}
-                    перемещено {$value->getMoveQuantity()} стало {$value->getNowQuantityToStorage()}"; ?></td>
+                <td><?php echo "{$value->getFromStorage()->getName()} {$value->getProduct()->getTitle()} был {$value->getPastQuantityFromStorage()}
+                    стало {$value->getNowQuantityFromStorage()} | {$value->getFromStorage()->getCreatedAt()}<br>
+                   {$value->getToStorage()->getName()} {$value->getProduct()->getTitle()} было {$value->getPastQuantityToStorage()}
+                    перемещено {$value->getMoveQuantity()} стало {$value->getNowQuantityToStorage()} | {$value->getToStorage()->getCreatedAt()}"; ?></td>
             </tr>
         <?php endforeach; ?>
     <?php endforeach; ?>

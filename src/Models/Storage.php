@@ -10,11 +10,13 @@ class Storage extends Model
     private int $id;
     private Product $product;
 
+
     public function __construct(
         private readonly string $name,
         private readonly string $createdAt,
         private readonly string $updatedAt,
-    ) {}
+    ) {
+    }
 
     public function getProduct(): Product
     {

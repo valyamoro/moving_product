@@ -90,25 +90,9 @@ class StorageService extends BaseService
         return $this->repository->getById($id);
     }
 
-    public function getStringProductInfo(Product $product, array $data): string
-    {
-        $string = "{$this->getById($data['from_storage_id'])['name']} {$product->getTitle()} был {$data['past_quantity_from_storage']}
-        стало {$data['now_quantity_from_storage']} {$data['created_at']}";
-
-        $string .= "| {$this->getById($data['to_storage_id'])['name']} {$product->getTitle()} было {$data['past_quantity_to_storage']}
-        перемещено {$data['move_quantity']} стало {$data['now_quantity_to_storage']} {$data['created_at']}";
-
-        return $string;
-    }
-
     public function saveHistory(int $productId, ProductStorage $productStorage): bool
     {
-        if (!$this->repository->saveHistory($productId, $productStorage)) {
-            $this->session->setFlash(['error' => 'История о перемещении товара не была сохранена! Пожалуйста, обратитесь к администратору сайта']);
-            return false;
-        } else {
-            return true;
-        }
+        return $this->repository->saveHistory($productId, $productStorage);
     }
 
     public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): ProductStorage

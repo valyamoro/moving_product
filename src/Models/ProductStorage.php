@@ -13,6 +13,9 @@ class ProductStorage
     private int $quantityCurrentInStorage;
     private int $quantityDifferenceInCurrentStorage;
     private int $quantitySumInCurrentStorage;
+    private Product $product;
+    private Storage $toStorage;
+    private Storage $fromStorage;
 
     public function __construct(
         private readonly int $fromStorageId,
@@ -80,6 +83,20 @@ class ProductStorage
         return $this->isMoveProduct;
     }
 
+    public function getProduct(): Product
+    {
+        return $this->product;
+    }
+
+    public function getFromStorage(): Storage
+    {
+        return $this->fromStorage;
+    }
+    public function getToStorage(): Storage
+    {
+        return $this->toStorage;
+    }
+
     public function setNowQuantityToStorage(int $value): void
     {
         $this->nowQuantityToStorage = $value;
@@ -120,4 +137,18 @@ class ProductStorage
         $this->quantitySumInCurrentStorage = $value;
     }
 
+    public function setProduct(Product $value): void
+    {
+        $this->product = $value;
+    }
+
+    public function setFromStorage(Storage $value): void
+    {
+        $this->fromStorage = $value;
+    }
+
+    public function setToStorage(Storage $value): void
+    {
+        $this->toStorage = $value;
+    }
 }
