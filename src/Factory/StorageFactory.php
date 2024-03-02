@@ -11,8 +11,6 @@ class StorageFactory implements InterfaceFactory
     {
         return new Storage(
             $data['name'],
-            $data['created_at'],
-            $data['updated_at'],
         );
     }
 }

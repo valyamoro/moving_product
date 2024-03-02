@@ -7,14 +7,13 @@ use App\core\Model;
 
 class Storage extends Model
 {
-    private int $id;
     private Product $product;
-
+    private int $id;
+    private readonly string $createdAt;
+    private readonly string $updatedAt;
 
     public function __construct(
         private readonly string $name,
-        private readonly string $createdAt,
-        private readonly string $updatedAt,
     ) {
     }
 
@@ -51,6 +50,16 @@ class Storage extends Model
     public function setProduct(Product $value): void
     {
         $this->product = $value;
+    }
+
+    public function setCreatedAt(string $value): void
+    {
+        $this->createdAt = $value;
+    }
+
+    public function setUpdatedAt(string $value): void
+    {
+        $this->updatedAt = $value;
     }
 
 }

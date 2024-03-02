@@ -10,11 +10,11 @@ use App\Services\BaseService;
 
 class ProductService extends BaseService
 {
-    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): ?ProductStorage
+    public function getAllAboutProduct(Product $product, ProductStorage $productStorage): ProductStorage
     {
         $productStorage = $this->getPastQuantityProductStorage($product, $productStorage);
-        if (\is_null($productStorage)) {
-            return null;
+        if ($productStorage->getPastQuantityFromStorage() === 0) {
+            return $productStorage;
         }
 
         $productStorage->setQuantityDifferenceInCurrentStorage($productStorage->getPastQuantityFromStorage() - $productStorage->getMoveQuantity());

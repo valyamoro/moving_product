@@ -13,8 +13,6 @@ class ProductFactory implements InterfaceFactory
             $data['title'],
             (int)$data['price'],
             (int)$data['quantity'],
-            $data['created_at'],
-            $data['updated_at'],
         );
     }
 }

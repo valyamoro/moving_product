@@ -19,7 +19,7 @@ class StorageService extends BaseService
         if ($productStorage->getIsMoveProduct()) {
             if ($productStorage->getQuantityCurrentInStorage() <= 0) {
                 if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
-                    $this->session->setFlash(['error' => 'Товар не удалился со старого склада!']);
+                    $this->session->setFlash(['error' => 'Товар не был перемещен со склада! Пожалуйста, попробуйте снова.']);
                     return false;
                 }
             } else {
@@ -28,7 +28,7 @@ class StorageService extends BaseService
                     $product->getId(),
                     $productStorage->getFromStorageId(),
                 ))) {
-                    $this->session->setFlash(['error' => 'Количество товаров не обновилось на старом складе!']);
+                    $this->session->setFlash(['error' => 'Количество товаров не обновилось на складе из которого вы их перемещаете! Пожалуйста, попробуйте снова.']);
                     return false;
                 }
             }
@@ -38,13 +38,13 @@ class StorageService extends BaseService
                 $productStorage->getToStorageId(),
                 $productStorage->getMoveQuantity(),
             ))) {
-                $this->session->setFlash(['error' => 'Товар не был перемещен!']);
+                $this->session->setFlash(['error' => 'Товар не был перемещен на склад! Пожалуйста, попробуйте снова.']);
                 return false;
             }
         } else {
             if ($productStorage->getPastQuantityFromStorage() <= $product->getQuantity()) {
                 if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
-                    $this->session->setFlash(['error' => 'Товар не удалился со старого склада!']);
+                    $this->session->setFlash(['error' => 'Товар не был перемещен со склада! Пожалуйста, попробуйте снова.']);
                     return false;
                 }
             } else {
@@ -53,7 +53,7 @@ class StorageService extends BaseService
                     $product->getId(),
                     $productStorage->getFromStorageId(),
                 ))) {
-                    $this->session->setFlash(['error' => 'Количество товаров не обновилось на старом складе!']);
+                    $this->session->setFlash(['error' => 'Количество товаров не обновилось на складе из которого вы их перемещаете! Пожалуйста, попробуйте снова.']);
                     return false;
                 }
             }
@@ -63,7 +63,7 @@ class StorageService extends BaseService
                 $product->getId(),
                 $productStorage->getToStorageId(),
             ))) {
-                $this->session->setFlash(['error' => 'Количество товаров не обновилось на новом складе!']);
+                $this->session->setFlash(['error' => 'Товар не был перемещен на новый склад! Пожалуйста, попробуйте снова.']);
                 return false;
             }
         }

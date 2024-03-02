@@ -25,10 +25,7 @@ class StorageRepository extends BaseRepository
     {
         $query = 'delete from product_storage where product_id=? and storage_id=?';
 
-        $this->connection->prepare($query)->execute([
-            $productId,
-            $storageId,
-        ]);
+        $this->connection->prepare($query)->execute([$productId, $storageId]);
 
         return (bool)$this->connection->rowCount();
     }
@@ -77,7 +74,8 @@ class StorageRepository extends BaseRepository
     {
         $query = 'insert into history_movement_product(product_id, from_storage_id, to_storage_id,
                 past_quantity_from_storage, now_quantity_from_storage,
-                past_quantity_to_storage, now_quantity_to_storage, move_quantity) values (?, ?, ?, ?, ?, ?, ?, ?)';
+                past_quantity_to_storage, now_quantity_to_storage, move_quantity)
+                values (?, ?, ?, ?, ?, ?, ?, ?)';
 
         $this->connection->prepare($query)->execute([
             $productId,

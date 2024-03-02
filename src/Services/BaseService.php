@@ -41,17 +41,13 @@ abstract class BaseService
         return $productStorage;
     }
 
-    protected function getPastQuantityProductStorage(Product $product, ProductStorage $productStorage): ?ProductStorage
+    protected function getPastQuantityProductStorage(Product $product, ProductStorage $productStorage): ProductStorage
     {
         $quantityProductInStorage = $this->getQuantityProductFromAndToStorage($product, $productStorage);
-        if (empty($quantityProductInStorage)) {
-            return null;
-        } else {
-            $productStorage->setPastQuantityFromStorage($quantityProductInStorage['from']);
-            $productStorage->setPastQuantityToStorage($quantityProductInStorage['to']);
+        $productStorage->setPastQuantityFromStorage($quantityProductInStorage['from']);
+        $productStorage->setPastQuantityToStorage($quantityProductInStorage['to']);
 
-            return $productStorage;
-        }
+        return $productStorage;
     }
 
 }

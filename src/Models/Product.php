@@ -8,13 +8,14 @@ use App\core\Model;
 class Product extends Model
 {
     private int $id;
+    private string $createdAt;
+    private string $updatedAt;
 
     public function __construct(
         private readonly string $title,
         private readonly int $price,
         private readonly int $quantity,
-        private readonly string $createdAt,
-        private readonly string $updatedAt,
+
     ) {
     }
 
@@ -51,6 +52,16 @@ class Product extends Model
     public function setId(int $value): void
     {
         $this->id = $value;
+    }
+
+    public function setCreatedAt(string $value): void
+    {
+        $this->createdAt = $value;
+    }
+
+    public function setUpdatedAt(string $value): void
+    {
+        $this->updatedAt = $value;
     }
 
 }
