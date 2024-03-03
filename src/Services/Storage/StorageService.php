@@ -24,7 +24,7 @@ class StorageService extends BaseService
 
     public function getProductStoragesCollection(array $data, array $products): array
     {
-        $storagesList = $this->getAll();
+        $storages = $this->getAll();
         $productStorages = [];
         foreach ($data as $key => $historyMovementProduct) {
             foreach ($historyMovementProduct as $value) {
@@ -47,7 +47,7 @@ class StorageService extends BaseService
                 }
 
                 $collectionStorages = [];
-                foreach ($storagesList as $storageData) {
+                foreach ($storages as $storageData) {
                     $storage = \App\Factory\StorageFactory::create([
                         'name' => $storageData['name'],
                     ]);

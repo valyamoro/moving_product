@@ -83,11 +83,11 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
 
 $data = $productService->getAllAboutMovementProducts();
 $products = $productService->getCollection($data);
-$historyMovementProducts = $storageService->getMovementProducts($products);
-$productsCollection = $products;
 $storages = $storageService->getCollection($data);
-$storages = $storageService->addProductInStorage($storages, $productsCollection);
 
+$productsCollection = $products;
+$storages = $storageService->addProductInStorage($storages, $productsCollection);
+$historyMovementProducts = $storageService->getMovementProducts($products);
 $productStorages = $storageService->getProductStoragesCollection($historyMovementProducts, $products);
 $storagesCollection = $storageService->getCollection();
 

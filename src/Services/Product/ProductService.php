@@ -12,7 +12,7 @@ class ProductService extends BaseService
 {
     public function getCollection(array $data = []): array
     {
-        if (!empty($data)) {
+        if (empty($data)) {
             $data = $this->repository->getAll();
         }
         $result = [];
