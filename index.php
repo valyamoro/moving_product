@@ -111,11 +111,10 @@ $storagesCollection = $storageService->getCollection();
     </div>
 
     <label for="quantity" class="form-label">Количество</label>
-    <input type="text" name="quantity" id="numberInput" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-    <input type="hidden" name="product_id" value="<?php echo $request->getMethod('product_id'); ?>">
-    <input type="hidden" name="from_storage_id" value="<?php echo $request->getMethod('from_storage_id'); ?>">
-    <button id="button" name="product_id" type="button" value="<?php echo $request->getMethod('product_id'); ?>"
-            class="btn btn-primary" onclick="moveProduct()">
+    <input type="text" name="quantity" id="quantity" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    <input type="hidden" name="product_id" id="product_id" value="<?php echo $request->getMethod('product_id'); ?>">
+    <input type="hidden" name="from_storage_id" id="from_storage_id" value="<?php echo $request->getMethod('from_storage_id'); ?>">
+    <button id="button" type="button" class="btn btn-primary" onclick="moveProduct()">
         Переместить
     </button>
 <?php else: ?>
@@ -130,52 +129,6 @@ $storagesCollection = $storageService->getCollection();
           crossorigin="anonymous">
     <link rel="stylesheet" href="assets/styles.css">
 </head>
-<script>
-    function moveProduct() {
-        const productId = document.querySelector('input[name="product_id"]').value;
-        const fromStorageId = document.querySelector('input[name="from_storage_id"]').value;
-        const toStorageId = document.getElementById('to_storage_id').value;
-        const quantity = document.getElementById('numberInput').value;
-
-        const data = {
-            product_id: productId,
-            from_storage_id: fromStorageId,
-            to_storage_id: toStorageId,
-            quantity: quantity
-        };
-
-        if (parseInt(quantity) > 0) {
-            fetch('index.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => {
-                    if (response.status === 400) {
-                        const cookies = document.cookie;
-                        const validateError = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('validate_error=')).split('=')[1]);
-                        document.getElementById('validate_error').innerText = validateError;
-                    } else {
-                        const modal = document.getElementById('myModal');
-                        modal.style.display = 'none';
-
-                        const cookies = document.cookie;
-                        const success = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('success=')).split('=')[1]);
-                        document.getElementById('success').innerText = success;
-
-                        const error = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('error=')).split('=')[1]);
-                        document.getElementById('error').innerText = error;
-                    }
-                })
-        } else {
-            document.getElementById('validate_error').innerText = 'Пожалуйста, введите количество товаров для отправки.';
-        }
-
-
-    }
-</script>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
