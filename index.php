@@ -9,6 +9,7 @@ use App\Database\PDODriver;
 require_once __DIR__ . '/vendor/autoload.php';
 
 $cookie = new \App\core\Http\Cookie();
+$response = new \App\core\Http\Response();
 
 $session = new \App\core\Http\Session();
 $session->start(true);
@@ -46,7 +47,7 @@ if ($request->getJson()) {
     );
 
     if (!$productValidator->validate()) {
-        \http_response_code(400);
+        $response->set(400);
         $cookie->set('validate_error', $productValidator->getErrors()[0]);
     } else {
         $productData = $productService->getById($data['product_id']);
@@ -72,10 +73,11 @@ if ($request->getJson()) {
             if ($isMovedProduct) {
                 if ($storageService->saveHistory($product, $productStorage)) {
                     $msg = "Вы успешно переместили продукт с номером {$data['product_id']} со склада под номером {$data['from_storage_id']}
-                    на склад под номером {$data['to_storage_id']} в количестве {$data['move_quantity']} штук.";
-                    $session->setFlash(['success' => $msg]);
+                    на склад под номером {$data['to_storage_id']} в количестве {$data['move_quantity']} штук.
+                    Пожалуйста, обновите страницу чтобы увидеть изменения";
+                    $cookie->set('success', $msg);
                 } else {
-                    $this->session->setFlash(['error' => 'История о перемещении товара не была сохранена! Пожалуйста, обратитесь к администратору сайта']);
+                    $cookie->set('error', 'История о перемещении товара не была сохранена! Пожалуйста, обратитесь к администратору сайта');
                 }
             }
         }
@@ -91,23 +93,8 @@ $productStorages = $storageService->getProductStoragesCollection($products);
 $storagesCollection = $storageService->getCollection();
 
 ?>
-<?php if (!empty($session->getFlash()['validate_errors'])): ?>
-    <?php foreach ($session->getFlash()['validate_errors'] as $error): ?>
-        <?php echo \nl2br($error) . '<br>'; ?>
-    <?php endforeach; ?>
-<!--    --><?php //$session->delete('validate_errors'); ?>
-    <br>
-<?php endif; ?>
-<?php if (!empty($session->getFlash()['success'])): ?>
-    <?php echo \nl2br($session->getFlash()['success']); ?>
-<!--    --><?php //$session->delete('success'); ?>
-    <br>
-<?php endif; ?>
-<?php if (!empty($session->getFlash()['error'])): ?>
-    <?php echo \nl2br($session->getFlash()['error']); ?>
-<!--    --><?php //$session->delete('error'); ?>
-    <br>
-<?php endif; ?>
+<div id="error"></div>
+<div id="success"></div>
 <?php if ($request->getMethod('product_id') && $request->getMethod('from_storage_id') && \is_null($request->getMethod('quantity'))): ?>
     <div id="validate_error"></div>
     <div class="modal-body">
@@ -171,12 +158,22 @@ $storagesCollection = $storageService->getCollection();
                         const validateError = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('validate_error=')).split('=')[1]);
                         document.getElementById('validate_error').innerText = validateError;
                     } else {
-                        window.location.href = '/';
+                        const modal = document.getElementById('myModal');
+                        modal.style.display = 'none';
+
+                        const cookies = document.cookie;
+                        const success = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('success=')).split('=')[1]);
+                        document.getElementById('success').innerText = success;
+
+                        const error = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('error=')).split('=')[1]);
+                        document.getElementById('error').innerText = error;
                     }
                 })
         } else {
             document.getElementById('validate_error').innerText = 'Пожалуйста, введите количество товаров для отправки.';
         }
+
+
     }
 </script>
 <body>
