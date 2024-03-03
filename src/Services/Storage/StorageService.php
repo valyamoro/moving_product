@@ -150,7 +150,7 @@ class StorageService extends BaseService
                 return false;
             }
         } else {
-            if ($productStorage->getPastQuantityFromStorage() <= $product->getQuantity()) {
+            if ($productStorage->getPastQuantityFromStorage() <= $productStorage->getMoveQuantity()) {
                 if (!$this->repository->deleteProduct($product->getId(), $productStorage->getFromStorageId())) {
                     $this->session->setFlash(['error' => 'Товар не был перемещен со склада! Пожалуйста, попробуйте снова.']);
                     return false;
