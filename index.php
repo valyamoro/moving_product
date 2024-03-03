@@ -8,6 +8,8 @@ use App\Database\PDODriver;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+$cookie = new \App\core\Http\Cookie();
+
 $session = new \App\core\Http\Session();
 $session->start(true);
 
@@ -45,7 +47,7 @@ if ($request->getJson()) {
 
     if (!$productValidator->validate()) {
         \http_response_code(400);
-        \setcookie('validate_errors', $productValidator->getErrors()[0]);
+        $cookie->set('validate_error', $productValidator->getErrors()[0]);
     } else {
         $productData = $productService->getById($data['product_id']);
         $product = \App\Factory\ProductFactory::create([
@@ -166,7 +168,7 @@ $storagesCollection = $storageService->getCollection();
                 .then(response => {
                     if (response.status === 400) {
                         const cookies = document.cookie;
-                        const validateError = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('validate_errors=')).split('=')[1]);
+                        const validateError = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('validate_error=')).split('=')[1]);
                         document.getElementById('validate_error').innerText = validateError;
                     } else {
                         window.location.href = '/';
