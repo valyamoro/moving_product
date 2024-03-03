@@ -12,7 +12,6 @@ $session = new \App\core\Http\Session();
 $session->start(true);
 
 $request = new \App\core\Http\Request();
-
 $configuration = require __DIR__ . '/config/db.php';
 $dataBaseConfiguration = new DatabaseConfiguration(...$configuration);
 $dataBasePDOConnection = new DatabasePDOConnection($dataBaseConfiguration);
@@ -23,12 +22,15 @@ $productService = new \App\Services\Product\ProductService($productRepository, $
 
 $storageRepository = new \App\Services\Storage\Repositories\StorageRepository($pdoDriver);
 $storageService = new \App\Services\Storage\StorageService($storageRepository, $session);
+$json_data = file_get_contents('php://input');
+$data = json_decode($json_data, true);
 
-if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id') && $request->getMethod('product_id')) {
-    $data = [];
-    foreach ($_POST as $key => $value) {
-        $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
-    }
+//if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id') && $request->getMethod('product_id')) {
+if ($data) {
+//    $data = [];
+//    foreach ($_POST as $key => $value) {
+//        $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
+//    }
 
     $data = [
         'product_id' => (int)$data['product_id'],
@@ -45,7 +47,9 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
     );
 
     if (!$productValidator->validate()) {
-        $session->setFlash(['validate_errors' => $productValidator->getErrors()]);
+        \http_response_code(400);
+        \setcookie('validate_errors', $productValidator->getErrors()[0]);
+//        $session->setFlash(['validate_errors' => $productValidator->getErrors()]);
     } else {
         $productData = $productService->getById($data['product_id']);
         $product = \App\Factory\ProductFactory::create([
@@ -107,35 +111,28 @@ $storagesCollection = $storageService->getCollection();
     <br>
 <?php endif; ?>
 <?php if ($request->getMethod('product_id') && $request->getMethod('from_storage_id') && \is_null($request->getMethod('quantity'))): ?>
-    <form id="myForm" action="" method="POST">
-        <div class="modal-body">
-            Вы перемещаете продукт с айди: <?php echo $request->getMethod('product_id'); ?><br>
-            Со склада с айди: <?php echo $request->getMethod('from_storage_id'); ?> <br>
-            На склад: <br>
-            <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
-                <?php foreach ($storagesCollection as $value): ?>
-                    <option value="<?php echo $value->getId() ?>">
-                        <?php echo $value->getName() ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+    <div id="validate_error"></div>
+    <div class="modal-body">
+        Вы перемещаете продукт с айди: <?php echo $request->getMethod('product_id'); ?><br>
+        Со склада с айди: <?php echo $request->getMethod('from_storage_id'); ?> <br>
+        На склад: <br>
+        <label for="to_storage_id"></label><select name="to_storage_id" id="to_storage_id">
+            <?php foreach ($storagesCollection as $value): ?>
+                <option value="<?php echo $value->getId() ?>">
+                    <?php echo $value->getName() ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
 
-        <label for="quantity" class="form-label">Количество</label>
-        <input type="text" name="quantity" id="numberInput" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-        <input type="hidden" name="product_id" value="<?php echo $request->getMethod('product_id'); ?>">
-        <input type="hidden" name="from_storage_id" value="<?php echo $request->getMethod('from_storage_id'); ?>">
-        <button type="submit" name="product_id" value="<?php echo $request->getMethod('product_id'); ?>"
-                class="btn btn-primary">
-            Переместить
-        </button>
-    </form>
-
-    <script>
-        document.getElementById("submitButton").addEventListener("click", function () {
-            document.getElementById("myForm").submit();
-        });
-    </script>
+    <label for="quantity" class="form-label">Количество</label>
+    <input type="text" name="quantity" id="numberInput" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    <input type="hidden" name="product_id" value="<?php echo $request->getMethod('product_id'); ?>">
+    <input type="hidden" name="from_storage_id" value="<?php echo $request->getMethod('from_storage_id'); ?>">
+    <button id="button" name="product_id" type="button" value="<?php echo $request->getMethod('product_id'); ?>"
+            class="btn btn-primary" onclick="moveProduct()">
+        Переместить
+    </button>
 <?php else: ?>
 <!doctype html>
 <html lang="ru">
@@ -148,6 +145,42 @@ $storagesCollection = $storageService->getCollection();
           crossorigin="anonymous">
     <link rel="stylesheet" href="assets/styles.css">
 </head>
+<script>
+    function moveProduct() {
+        const productId = document.querySelector('input[name="product_id"]').value;
+        const fromStorageId = document.querySelector('input[name="from_storage_id"]').value;
+        const toStorageId = document.getElementById('to_storage_id').value;
+        const quantity = document.getElementById('numberInput').value;
+
+        const data = {
+            product_id: productId,
+            from_storage_id: fromStorageId,
+            to_storage_id: toStorageId,
+            quantity: quantity
+        };
+
+        if (parseInt(quantity) > 0) {
+            fetch('index.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (response.status === 400) {
+                        const cookies = document.cookie;
+                        const validateError = decodeURIComponent(cookies.split('; ').find(cookie => cookie.startsWith('validate_errors=')).split('=')[1]);
+                        document.getElementById('validate_error').innerText = validateError;
+                    } else {
+                        window.location.href = '/';
+                    }
+                })
+        } else {
+            document.getElementById('validate_error').innerText = 'Пожалуйста, введите количество товаров для отправки.';
+        }
+    }
+</script>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
