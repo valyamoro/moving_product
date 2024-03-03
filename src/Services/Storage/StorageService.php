@@ -181,12 +181,13 @@ class StorageService extends BaseService
         return true;
     }
 
-    public function saveHistory(int $productId, ProductStorage $productStorage): bool
+    public function saveHistory(Product $product, ProductStorage $productStorage): bool
     {
-        return $this->repository->saveHistory($productId, $productStorage);
+        $productStorage = $this->getInfoAboutProductMovement($product, $productStorage);
+        return $this->repository->saveHistory($product->getId(), $productStorage);
     }
 
-    public function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): ProductStorage
+    private function getInfoAboutProductMovement(Product $product, ProductStorage $productStorage): ProductStorage
     {
         return $this->getNowQuantityProductStorage($product, $productStorage);
     }

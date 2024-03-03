@@ -68,8 +68,7 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
         } else {
             $isMovedProduct = $storageService->moveProduct($product, $productStorage);
             if ($isMovedProduct) {
-                $productStorage = $storageService->getInfoAboutProductMovement($product, $productStorage);
-                if ($storageService->saveHistory($product->getId(), $productStorage)) {
+                if ($storageService->saveHistory($product, $productStorage)) {
                     $msg = "Вы успешно переместили продукт с номером {$data['product_id']} со склада под номером {$data['from_storage_id']}
                     на склад под номером {$data['to_storage_id']} в количестве {$data['move_quantity']} штук.";
                     $session->setFlash(['success' => $msg]);
