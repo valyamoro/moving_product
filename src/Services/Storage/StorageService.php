@@ -9,23 +9,32 @@ use App\Services\BaseService;
 
 class StorageService extends BaseService
 {
-    public function addProductInStorage(array $storages, array $products): array
+    public function getCollection(array $data = []): array
     {
-        foreach ($storages as $storage) {
-            foreach ($products as $key => $product) {
-                unset($products[$key]);
-                $storage->setProduct($product);
-                break;
-            }
+        if (empty($data)) {
+            $data = $this->repository->getAll();
         }
 
-        return $storages;
+        $result = [];
+
+        foreach ($data as $value) {
+            $storage = \App\Factory\StorageFactory::create([
+                'name' => $value['name'],
+            ]);
+            $storage->setId($value['storage_id']);
+
+            $result[] = $storage;
+        }
+
+        return $result;
     }
 
-    public function getProductStoragesCollection(array $data, array $products): array
+    public function getProductStoragesCollection(array $products): array
     {
-        $storages = $this->getAll();
         $productStorages = [];
+
+        $storages = $this->getAll();
+        $data = $this->getMovementProducts($products);
         foreach ($data as $key => $historyMovementProduct) {
             foreach ($historyMovementProduct as $value) {
                 $productStorage = new \App\Models\ProductStorage(
@@ -72,8 +81,20 @@ class StorageService extends BaseService
 
         return $productStorages;
     }
+    public function addProductInStorage(array $storages, array $products): array
+    {
+        foreach ($storages as $storage) {
+            foreach ($products as $key => $product) {
+                unset($products[$key]);
+                $storage->setProduct($product);
+                break;
+            }
+        }
 
-    public function getMovementProducts(array $productsCollections): array
+        return $storages;
+    }
+
+    private function getMovementProducts(array $productsCollections): array
     {
         $result = [];
 
@@ -98,26 +119,7 @@ class StorageService extends BaseService
         return $result;
     }
 
-    public function getCollection(array $data = []): array
-    {
-        if (empty($data)) {
-            $data = $this->repository->getAll();
-        }
-
-        $result = [];
-
-        foreach ($data as $value) {
-            $storage = \App\Factory\StorageFactory::create([
-                'name' => $value['name'],
-            ]);
-            $storage->setId($value['storage_id']);
-
-            $result[] = $storage;
-        }
-
-        return $result;
-    }
-    public function getAll(): array
+    private function getAll(): array
     {
         return $this->repository->getAll();
     }

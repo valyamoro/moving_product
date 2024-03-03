@@ -84,11 +84,9 @@ if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id
 $data = $productService->getAllAboutMovementProducts();
 $products = $productService->getCollection($data);
 $storages = $storageService->getCollection($data);
+$storages = $storageService->addProductInStorage($storages, $products);
 
-$productsCollection = $products;
-$storages = $storageService->addProductInStorage($storages, $productsCollection);
-$historyMovementProducts = $storageService->getMovementProducts($products);
-$productStorages = $storageService->getProductStoragesCollection($historyMovementProducts, $products);
+$productStorages = $storageService->getProductStoragesCollection($products);
 $storagesCollection = $storageService->getCollection();
 
 ?>
@@ -196,26 +194,28 @@ $storagesCollection = $storageService->getCollection();
     <?php endforeach; ?>
     </tbody>
 </table>
-<h3>История перемещений:</h3>
-<table class="table">
-    <thead>
-    <tr>
-        <th scope="col">Айди продукта</th>
-        <th scope="col">История</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($productStorages as $key => $productStorage): ?>
-        <?php foreach ($productStorage as $value): ?>
-            <tr>
-                <td><?php echo $key ?></td>
-                <td><?php echo "{$value->getFromStorage()->getName()} {$value->getProduct()->getTitle()} было {$value->getPastQuantityFromStorage()}
+<?php if (!empty($productStorages)): ?>
+    <h3>История перемещений:</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Айди продукта</th>
+            <th scope="col">История</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($productStorages as $key => $productStorage): ?>
+            <?php foreach ($productStorage as $value): ?>
+                <tr>
+                    <td><?php echo $key ?></td>
+                    <td><?php echo "{$value->getFromStorage()->getName()} {$value->getProduct()->getTitle()} было {$value->getPastQuantityFromStorage()}
                     стало {$value->getNowQuantityFromStorage()} | {$value->getFromStorage()->getCreatedAt()}<br>
                    {$value->getToStorage()->getName()} {$value->getProduct()->getTitle()} было {$value->getPastQuantityToStorage()}
                     перемещено {$value->getMoveQuantity()} стало {$value->getNowQuantityToStorage()} | {$value->getToStorage()->getCreatedAt()}"; ?></td>
-            </tr>
+                </tr>
+            <?php endforeach; ?>
         <?php endforeach; ?>
-    <?php endforeach; ?>
-    </tbody>
-</table>
+        </tbody>
+    </table>
+<?php endif; ?>
 <?php endif; ?>
