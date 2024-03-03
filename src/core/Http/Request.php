@@ -20,4 +20,10 @@ final class Request
         return !isset($name);
     }
 
+    public function getJson(): array
+    {
+        $json = \file_get_contents('php://input');
+        return !empty($json) ? \json_decode($json, true) : [];
+    }
+
 }

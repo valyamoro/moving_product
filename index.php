@@ -22,15 +22,12 @@ $productService = new \App\Services\Product\ProductService($productRepository, $
 
 $storageRepository = new \App\Services\Storage\Repositories\StorageRepository($pdoDriver);
 $storageService = new \App\Services\Storage\StorageService($storageRepository, $session);
-$json_data = file_get_contents('php://input');
-$data = json_decode($json_data, true);
 
-//if ($request->getMethod('to_storage_id') && $request->getMethod('from_storage_id') && $request->getMethod('product_id')) {
-if ($data) {
-//    $data = [];
-//    foreach ($_POST as $key => $value) {
-//        $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
-//    }
+if ($request->getJson()) {
+    $data = [];
+    foreach ($request->getJson() as $key => $value) {
+        $data[$key] = \htmlspecialchars(\strip_tags(\trim($value)));
+    }
 
     $data = [
         'product_id' => (int)$data['product_id'],
@@ -49,7 +46,6 @@ if ($data) {
     if (!$productValidator->validate()) {
         \http_response_code(400);
         \setcookie('validate_errors', $productValidator->getErrors()[0]);
-//        $session->setFlash(['validate_errors' => $productValidator->getErrors()]);
     } else {
         $productData = $productService->getById($data['product_id']);
         $product = \App\Factory\ProductFactory::create([
@@ -97,17 +93,17 @@ $storagesCollection = $storageService->getCollection();
     <?php foreach ($session->getFlash()['validate_errors'] as $error): ?>
         <?php echo \nl2br($error) . '<br>'; ?>
     <?php endforeach; ?>
-    <?php $session->delete('validate_errors'); ?>
+<!--    --><?php //$session->delete('validate_errors'); ?>
     <br>
 <?php endif; ?>
 <?php if (!empty($session->getFlash()['success'])): ?>
     <?php echo \nl2br($session->getFlash()['success']); ?>
-    <?php $session->delete('success'); ?>
+<!--    --><?php //$session->delete('success'); ?>
     <br>
 <?php endif; ?>
 <?php if (!empty($session->getFlash()['error'])): ?>
     <?php echo \nl2br($session->getFlash()['error']); ?>
-    <?php $session->delete('error'); ?>
+<!--    --><?php //$session->delete('error'); ?>
     <br>
 <?php endif; ?>
 <?php if ($request->getMethod('product_id') && $request->getMethod('from_storage_id') && \is_null($request->getMethod('quantity'))): ?>
