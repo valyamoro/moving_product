@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 24, 2024 at 10:05 AM
+-- Generation Time: Mar 03, 2024 at 12:59 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.9
 
@@ -24,32 +24,32 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `history_product_moving`
+-- Table structure for table `history_movement_product`
 --
 
-CREATE TABLE `history_product_moving` (
+CREATE TABLE `history_movement_product` (
   `id` int NOT NULL,
   `product_id` int NOT NULL,
-  `description` varchar(255) NOT NULL
+  `from_storage_id` int NOT NULL,
+  `to_storage_id` int NOT NULL,
+  `past_quantity_from_storage` int NOT NULL,
+  `now_quantity_from_storage` int NOT NULL,
+  `past_quantity_to_storage` int NOT NULL,
+  `now_quantity_to_storage` int NOT NULL,
+  `move_quantity` int NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `history_product_moving`
+-- Dumping data for table `history_movement_product`
 --
 
-INSERT INTO `history_product_moving` (`id`, `product_id`, `description`) VALUES
-(210, 1, 'склад1 продукт1 был 1\r\n        стало 0 23-02-2024 13:43\n| склад2 продукт1 было 0\r\n        перемещено 1 стало 1 23-02-2024 13:43'),
-(211, 4, 'склад5 продукт4 был 5\r\n        стало 1 23-02-2024 13:44\n| склад1 продукт4 было 0\r\n        перемещено 4 стало 4 23-02-2024 13:44'),
-(212, 1, 'склад2 продукт1 был 1\r\n        стало 0 23-02-2024 14:07\n| склад1 продукт1 было 0\r\n        перемещено 1 стало 1 23-02-2024 14:07'),
-(213, 3, 'склад5 продукт3 был 3\r\n        стало 0 23-02-2024 14:08\n| склад3 продукт3 было 0\r\n        перемещено 3 стало 3 23-02-2024 14:08'),
-(214, 5, 'склад4 продукт5 был 2\r\n        стало 0 23-02-2024 15:11\n| склад1 продукт5 было 0\r\n        перемещено 2 стало 2 23-02-2024 15:11'),
-(215, 2, 'склад1 продукт2 был 3\r\n        стало 0 23-02-2024 15:11\n| склад2 продукт2 было 0\r\n        перемещено 3 стало 3 23-02-2024 15:11'),
-(216, 1, 'склад5 продукт1 был 1\r\n        стало 0 23-02-2024 15:55\n| склад1 продукт1 было 0\r\n        перемещено 1 стало 1 23-02-2024 15:55'),
-(217, 1, 'склад1 продукт1 был 1\r\n        стало 1 23-02-2024 16:01\n| склад1 продукт1 было 1\r\n        перемещено 0 стало 1 23-02-2024 16:01'),
-(218, 1, 'склад1 продукт1 был 1\r\n        стало 1 23-02-2024 16:02\n| склад1 продукт1 было 1\r\n        перемещено 0 стало 1 23-02-2024 16:02'),
-(219, 1, 'склад1 продукт1 был 1\r\n        стало 0 23-02-2024 16:13\n| склад2 продукт1 было 0\r\n        перемещено 1 стало 1 23-02-2024 16:13'),
-(220, 1, 'склад2 продукт1 был 1\r\n        стало 1 24-02-2024 09:52\n| склад1 продукт1 было 0\r\n        перемещено 0 стало 0 24-02-2024 09:52'),
-(221, 1, 'склад2 продукт1 был 1\r\n        стало 1 24-02-2024 09:52\n| склад1 продукт1 было 0\r\n        перемещено 0 стало 0 24-02-2024 09:52');
+INSERT INTO `history_movement_product` (`id`, `product_id`, `from_storage_id`, `to_storage_id`, `past_quantity_from_storage`, `now_quantity_from_storage`, `past_quantity_to_storage`, `now_quantity_to_storage`, `move_quantity`, `created_at`, `updated_at`) VALUES
+(44, 1, 1, 2, 3, 0, 0, 3, 3, '2024-03-03 12:34:13', '2024-03-03 12:34:13'),
+(45, 1, 2, 1, 3, 0, 0, 3, 3, '2024-03-03 12:55:08', '2024-03-03 12:55:08'),
+(46, 1, 1, 2, 3, 0, 0, 3, 3, '2024-03-03 12:56:09', '2024-03-03 12:56:09'),
+(47, 1, 2, 1, 3, 2, 0, 1, 1, '2024-03-03 12:56:13', '2024-03-03 12:56:13');
 
 -- --------------------------------------------------------
 
@@ -62,19 +62,20 @@ CREATE TABLE `products` (
   `title` varchar(255) DEFAULT NULL,
   `price` int DEFAULT NULL,
   `quantity` int DEFAULT NULL,
-  `created_at` datetime NOT NULL
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `title`, `price`, `quantity`, `created_at`) VALUES
-(1, 'продукт1', 500, 5, '2024-02-18 17:53:03'),
-(2, 'продукт2', 500, 5, '2024-02-18 17:53:03'),
-(3, 'продукт3', 500, 5, '2024-02-18 17:53:03'),
-(4, 'продукт4', 500, 5, '2024-02-18 17:53:03'),
-(5, 'продукт5', 500, 5, '2024-02-18 17:53:03');
+INSERT INTO `products` (`id`, `title`, `price`, `quantity`, `created_at`, `updated_at`) VALUES
+(1, 'продукт1', 500, 5, '2024-02-18 17:53:03', '2024-02-29 11:01:20'),
+(2, 'продукт2', 500, 5, '2024-02-18 17:53:03', '2024-02-29 11:01:20'),
+(3, 'продукт3', 500, 5, '2024-02-18 17:53:03', '2024-02-29 11:01:20'),
+(4, 'продукт4', 500, 5, '2024-02-18 17:53:03', '2024-02-29 11:01:20'),
+(5, 'продукт5', 500, 5, '2024-02-18 17:53:03', '2024-02-29 11:01:20');
 
 -- --------------------------------------------------------
 
@@ -94,14 +95,12 @@ CREATE TABLE `product_storage` (
 --
 
 INSERT INTO `product_storage` (`id`, `product_id`, `storage_id`, `quantity`) VALUES
-(34273, 4, 5, 1),
-(34283, 4, 1, 4),
-(34285, 3, 3, 3),
-(34289, 5, 1, 2),
-(34290, 2, 2, 3),
-(34292, 1, 2, 1),
-(34293, 1, 1, 0),
-(34294, 1, 1, 0);
+(3, 3, 3, 5),
+(4, 4, 4, 5),
+(8, 5, 5, 5),
+(30, 2, 2, 5),
+(35, 1, 2, 2),
+(36, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -112,28 +111,29 @@ INSERT INTO `product_storage` (`id`, `product_id`, `storage_id`, `quantity`) VAL
 CREATE TABLE `storages` (
   `id` int NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `created_at` datetime NOT NULL
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `storages`
 --
 
-INSERT INTO `storages` (`id`, `name`, `created_at`) VALUES
-(1, 'склад1', '2024-02-18 17:52:28'),
-(2, 'склад2', '2024-02-18 17:52:37'),
-(3, 'склад3', '2024-02-18 17:52:43'),
-(4, 'склад4', '2024-02-18 17:52:49'),
-(5, 'склад5', '2024-02-18 17:52:55');
+INSERT INTO `storages` (`id`, `name`, `created_at`, `updated_at`) VALUES
+(1, 'склад1', '2024-02-18 17:52:28', '2024-02-29 11:42:46'),
+(2, 'склад2', '2024-02-18 17:52:37', '2024-02-29 11:42:46'),
+(3, 'склад3', '2024-02-18 17:52:43', '2024-02-29 11:42:46'),
+(4, 'склад4', '2024-02-18 17:52:49', '2024-02-29 11:42:46'),
+(5, 'склад5', '2024-02-18 17:52:55', '2024-02-29 11:42:46');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `history_product_moving`
+-- Indexes for table `history_movement_product`
 --
-ALTER TABLE `history_product_moving`
+ALTER TABLE `history_movement_product`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -159,10 +159,10 @@ ALTER TABLE `storages`
 --
 
 --
--- AUTO_INCREMENT for table `history_product_moving`
+-- AUTO_INCREMENT for table `history_movement_product`
 --
-ALTER TABLE `history_product_moving`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=222;
+ALTER TABLE `history_movement_product`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -174,7 +174,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `product_storage`
 --
 ALTER TABLE `product_storage`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34295;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `storages`

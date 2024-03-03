@@ -9,4 +9,3 @@ if (!\function_exists('dump')) {
         echo '</pre>';
     }
 }
-

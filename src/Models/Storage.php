@@ -16,7 +16,6 @@ class Storage extends Model
         private readonly string $name,
     ) {
     }
-
     public function getProduct(): Product
     {
         return $this->product;

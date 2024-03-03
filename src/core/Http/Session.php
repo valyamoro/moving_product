@@ -14,19 +14,9 @@ final class Session
         }
     }
 
-    public function getId(?string $name = null): string
+    public function get(string $key, string $name = ''): mixed
     {
-        return \session_id($name);
-    }
-
-    public function setId(string $value): void
-    {
-        \session_id($value);
-    }
-
-    public function get(string $key, ?string $name = null): mixed
-    {
-        if (!\is_null($name)) {
+        if (!empty($name)) {
             return $this->exists($key) ? $_SESSION[$key][$name] : null;
         }
 
@@ -52,18 +42,6 @@ final class Session
         if ($this->exists($key)) {
             $_SESSION[$key] = null;
             unset($_SESSION[$key]);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public function destroy(string $key): bool
-    {
-        if ($this->exists($key)) {
-            \session_unset();
-            \session_destroy();
 
             return true;
         }

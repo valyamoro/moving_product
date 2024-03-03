@@ -56,4 +56,5 @@ class ProductValidator extends Validator
 
         ];
     }
+
 }

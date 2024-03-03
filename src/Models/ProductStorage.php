@@ -34,18 +34,15 @@ class ProductStorage
         return $this->nowQuantityToStorage;
     }
 
-
     public function getPastQuantityFromStorage(): int
     {
         return $this->pastQuantityFromStorage;
     }
 
-
     public function getPastQuantityToStorage(): int
     {
         return $this->pastQuantityToStorage;
     }
-
 
     public function getQuantityCurrentInStorage(): int
     {
@@ -56,7 +53,6 @@ class ProductStorage
     {
         return $this->quantityDifferenceInCurrentStorage;
     }
-
 
     public function getQuantitySumInCurrentStorage(): int
     {

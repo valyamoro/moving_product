@@ -81,6 +81,7 @@ class StorageService extends BaseService
 
         return $productStorages;
     }
+
     public function addProductInStorage(array $storages, array $products): array
     {
         foreach ($storages as $storage) {

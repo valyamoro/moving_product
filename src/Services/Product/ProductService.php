@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Services\Product;
 
-use App\Exceptions\ExceptionEmptyQuantityProduct;
 use App\Models\Product;
 use App\Models\ProductStorage;
 use App\Services\BaseService;

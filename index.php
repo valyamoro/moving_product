@@ -97,12 +97,12 @@ $storagesCollection = $storageService->getCollection();
     <br>
 <?php endif; ?>
 <?php if (!empty($session->getFlash()['success'])): ?>
-    <?php echo \nl2br($session->getFlash()['success']) . '<br>'; ?>
+    <?php echo \nl2br($session->getFlash()['success']); ?>
     <?php $session->delete('success'); ?>
     <br>
 <?php endif; ?>
 <?php if (!empty($session->getFlash()['error'])): ?>
-    <?php echo \nl2br($session->getFlash()['error']) . '<br>'; ?>
+    <?php echo \nl2br($session->getFlash()['error']); ?>
     <?php $session->delete('error'); ?>
     <br>
 <?php endif; ?>
