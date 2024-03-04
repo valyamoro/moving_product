@@ -7,7 +7,10 @@ use App\Models\Model;
 
 abstract class Collection
 {
-    abstract public function makeOne(): Model;
-    // Массив коллекций
-    abstract public function make(): array;
+    public array $collection;
+    abstract public function makeItem(array $data): Model;
+    abstract public function makeItems(array $data): array;
+    abstract public function update(): array;
+    abstract public function remove(): array;
+
 }

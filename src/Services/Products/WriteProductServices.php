@@ -1,33 +1,35 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\ProductMoving;
+namespace App\Services\Products;
 
 use App\Models\Model;
 use App\Models\Product;
 use App\Services\Contracts\ServiceInterface;
-use App\Services\ProductMoving\Repositories\ReadProductRepository;
-use App\Services\ProductMoving\Repositories\WriteProductRepository;
+use App\Services\Products\Repositories\WriteStorageRepository;
 
-// только для работы с запись, обновления, удаления.
 class WriteProductServices implements ServiceInterface
 {
     public function __construct(
-        private WriteProductRepository $repository,
+        private WriteStorageRepository $repository,
     ) {}
 
+    // Получение данных и создание модели.
     public function getById(int $id): Model
     {
     }
 
+    // Запись в хранилище данных из модели.
     public function create(Product $product): Product
     {
     }
 
+    // Обновление существующей записи из хранилища.
     public function update(Product $product): Product
     {
     }
 
+    // Уничтожение записи.
     public function destroy(int $id): bool
     {
     }
