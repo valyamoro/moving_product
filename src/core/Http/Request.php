@@ -1,9 +1,29 @@
 <?php
 declare(strict_types=1);
 
-namespace App\L_18_02_24\src\core\Http;
+namespace App\core\Http;
 
-class Request
+final class Request
 {
+    public function isMethod(?string $method = null): bool
+    {
+        return $_SERVER['REQUEST_METHOD'] === \strtoupper($method);
+    }
+
+    public function getMethod(?string $name = null): mixed
+    {
+        return !$this->isEmpty($name) ? $_REQUEST[$name] ?? null : $_REQUEST;
+    }
+
+    public function isEmpty(mixed $name): bool
+    {
+        return !isset($name);
+    }
+
+    public function getJson(): array
+    {
+        $json = \file_get_contents('php://input');
+        return !empty($json) ? \json_decode($json, true) : [];
+    }
 
 }

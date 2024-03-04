@@ -3,33 +3,36 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Database\DatabaseConfiguration;
-use App\Database\DatabasePDOConnection;
-use App\Database\PDODriver;
+use App\Database\QueryBuilder;
 
 abstract class BaseRepository
 {
-    protected PDODriver $connection;
-    public function __construct(array $configuration) {
-        $this->connection = $this->connectionDB($configuration);
+    public function __construct(protected QueryBuilder $connection)
+    {
     }
 
-    private function connectionDB($configuration): PDODriver
+    public function getAllProductStorage(int $productId, int $storageId): array
     {
-        $dataBaseConfiguration = new DatabaseConfiguration(...$configuration);
-        $dataBasePDOConnection = new DatabasePDOConnection($dataBaseConfiguration);
+        $query = 'select * from product_storage where product_id=? and storage_id=? limit 1';
 
-        return new PDODriver($dataBasePDOConnection->connection());
+        $this->connection->prepare($query)->execute([$productId, $storageId]);
+
+        return $this->connection->fetch();
     }
 
-    public function getQuantityWareHousesProduct(int $productId, int $wareHouseId): int
+    public function getAllAboutMovementProducts(): array
     {
-        $query = 'select quantity from product_warehouse where product_id=? and warehouse_id=?';
+        $query = 'SELECT p.id, s.id AS storage_id, p.title, p.price, s.name, ps.quantity, 
+       s.created_at AS storage_created, s.updated_at AS storage_updated,
+       p.created_at, p.updated_at
+          FROM product_storage AS ps
+          JOIN products AS p ON ps.product_id = p.id
+          JOIN storages AS s ON ps.storage_id = s.id
+          order by id asc, ps.storage_id asc';
 
-        $this->connection->prepare($query)->execute([$productId, $wareHouseId]);
+        $this->connection->prepare($query)->execute();
 
-        $result = $this->connection->fetch();
-        return [] === $result ? 0 : $result['quantity'];
+        return $this->connection->fetchAll();
     }
 
 }

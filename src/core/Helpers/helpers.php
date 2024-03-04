@@ -6,7 +6,6 @@ if (!\function_exists('dump')) {
     {
         echo '<pre>';
         print_r($value);
-        echo '<pre>';
+        echo '</pre>';
     }
 }
-
